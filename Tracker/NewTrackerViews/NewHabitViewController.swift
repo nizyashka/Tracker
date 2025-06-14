@@ -8,43 +8,60 @@
 import Foundation
 import UIKit
 
+protocol ScheduleViewControllerDelegate: AnyObject {
+    func setNewScheduleWeekdays(pickedWeekdays: [String])
+}
+
 class NewHabitViewController: UIViewController {
+    private let viewTitleLabel = UILabel()
     private let trackerNameTextField = PaddedTextField()
     private let tableView = UITableView()
-    private let tableViewOptions = ["Категория", "Расписание"]
-    private let separatorLine = UIView()
     private let cancelButton = UIButton()
     private let createButton = UIButton()
     private let cancelCreateButtonsStackView = UIStackView()
-    let trackersViewController = TrackersViewController()
     
+    var newHabitViewControllerDelegate: NewHabitViewControllerDelegate?
+    
+    private let tableViewOptions = ["Категория", "Расписание"]
+    private var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
+    
+    //MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
         
-        addNavigationTitle("Новая привычка")
+        addViewTitleLabel(title: "Новая привычка")
         addTrackerNameTextField()
-        registerCell()
         configureTableView(height: 150)
+        registerCell()
         addCancelCreateButtonsStackView()
-        //addSeparatorLine()
     }
     
-    func addNavigationTitle(_ title: String) {
-        navigationItem.largeTitleDisplayMode = .never
-        self.title = title
+    //MARK: - UI Components Configuration Functions
+    func addViewTitleLabel(title: String) {
+        viewTitleLabel.text = title
+        viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(viewTitleLabel)
+        
+        NSLayoutConstraint.activate([
+            viewTitleLabel.heightAnchor.constraint(equalToConstant: 22),
+            viewTitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            viewTitleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 27)
+        ])
     }
     
     func addTrackerNameTextField() {
         trackerNameTextField.delegate = self
-        trackerNameTextField.becomeFirstResponder()
-        trackerNameTextField.returnKeyType = UIReturnKeyType.done
-        
-        guard let trackerNameTextFieldDelegate = trackerNameTextField.delegate else { return }
+        guard let trackerNameTextFieldDelegate = trackerNameTextField.delegate else {
+            print("[NewHabitViewController]: addTrackerNameTextField - No delegate found.")
+            return
+        }
         
         trackerNameTextFieldDelegate.textFieldDidEndEditing?(trackerNameTextField)
-        
+        trackerNameTextField.becomeFirstResponder()
+        trackerNameTextField.returnKeyType = UIReturnKeyType.done
         trackerNameTextField.placeholder = "Введите название трекера"
         trackerNameTextField.backgroundColor = .ypGray30
         trackerNameTextField.font = UIFont.systemFont(ofSize: 17)
@@ -55,7 +72,7 @@ class NewHabitViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
-            trackerNameTextField.topAnchor.constraint(equalTo: view.topAnchor, constant: 64),
+            trackerNameTextField.topAnchor.constraint(equalTo: viewTitleLabel.bottomAnchor, constant: 38),
             trackerNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             trackerNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
@@ -65,9 +82,7 @@ class NewHabitViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
-        //tableView.tableFooterView = UIView()
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.isScrollEnabled = false
@@ -85,20 +100,6 @@ class NewHabitViewController: UIViewController {
     func registerCell() {
         tableView.register(TrackerTypeCell.self, forCellReuseIdentifier: "cell")
     }
-    
-//    private func addSeparatorLine() {
-//        separatorLine.backgroundColor = .lightGray
-//        separatorLine.translatesAutoresizingMaskIntoConstraints = false
-//        view.addSubview(separatorLine)
-//        
-//        NSLayoutConstraint.activate([
-//            separatorLine.heightAnchor.constraint(equalToConstant: 1),
-//            separatorLine.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
-//            separatorLine.centerYAnchor.constraint(equalTo: tableView.centerYAnchor),
-//            separatorLine.leadingAnchor.constraint(equalTo: tableView.leadingAnchor, constant: 16),
-//            separatorLine.trailingAnchor.constraint(equalTo: tableView.trailingAnchor, constant: -16)
-//        ])
-//    }
     
     func addCancelCreateButtonsStackView() {
         cancelCreateButtonsStackView.spacing = 8
@@ -138,40 +139,40 @@ class NewHabitViewController: UIViewController {
         cancelCreateButtonsStackView.addArrangedSubview(createButton)
     }
     
-    @objc func cancelButtonTapped() {
-        navigationController?.popToRootViewController(animated: true)
+    //MARK: - UI Components Actions
+    @objc private func cancelButtonTapped() {
+        newHabitViewControllerDelegate?.dismiss()
     }
     
-    @objc func createButtonTapped() {
+    @objc private func createButtonTapped() {
         var categoryIndex: Int = 0
         let trackerCategory = "Категория 1" //В теории берется из UI
-        let trackerName = "Поливать растения" //В теории берется из UI
         let trackerColor: UIColor = .ypGreen //В теории берется из UI
-        let trackerEmoji = "❤️" //В теории берется из UI
+        let trackerEmoji = "🍎" //В теории берется из UI
         
-        var existingCategories = trackersViewController.categories
+        guard let trackerName = trackerNameTextField.text else {
+            print("[NewHabitViewController]: createButtonTapped - No text in trackerNameTextField.")
+            return
+        }
+        
+        guard var existingCategories = newHabitViewControllerDelegate?.getCategories() else {
+            print("[NewHabitViewController]: createButtonTapped - Categories not found.")
+            return
+        }
         
         if existingCategories.isEmpty {
             let newCategory = TrackerCategory(
                 title: trackerCategory,
-                trackers: [(Tracker(id: UUID.init(),
-                                    name: trackerName,
-                                    color: trackerColor,
-                                    emoji: trackerEmoji,
-                                    schedule: Date(timeIntervalSinceNow: TimeInterval()))
-                )]
-            )
-            trackersViewController.updateCollectionView(newCategories: [newCategory], section: 0)
+                trackers: [createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji)])
+            
+            updateCollectionViewSection(newCategories: [newCategory], section: 0, pickedWeekdays: scheduledWeekdays)
+            
             return
         }
         
         for existingCategory in existingCategories {
             if existingCategory.title == trackerCategory {
-                let newTracker = Tracker(id: UUID.init(),
-                                         name: trackerName,
-                                         color: trackerColor,
-                                         emoji: trackerEmoji,
-                                         schedule: Date(timeIntervalSinceNow: TimeInterval()))
+                let newTracker = createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji)
                 let newTrackers = (existingCategory.trackers ?? []) + [newTracker]
                 let newCategory = TrackerCategory(
                     title: trackerCategory,
@@ -183,24 +184,33 @@ class NewHabitViewController: UIViewController {
                 }
                 
                 let newCategories = existingCategories
-                trackersViewController.updateCollectionView(newCategories: newCategories, section: categoryIndex)
-                dismiss(animated: true)
+                
+                updateCollectionViewSection(newCategories: newCategories, section: categoryIndex, pickedWeekdays: scheduledWeekdays)
+                
                 return
             }
         }
         
         let newCategory = TrackerCategory(
             title: trackerCategory,
-            trackers: [(Tracker(id: UUID.init(),
-                                name: trackerName,
-                                color: trackerColor,
-                                emoji: trackerEmoji,
-                                schedule: Date(timeIntervalSinceNow: TimeInterval()))
-            )]
-        )
+            trackers: [createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji)])
         
         let newCategories = existingCategories + [newCategory]
-        trackersViewController.updateCollectionView(newCategories: newCategories, section: newCategories.count - 1)
+        
+        updateCollectionViewSection(newCategories: newCategories, section: newCategories.count - 1, pickedWeekdays: scheduledWeekdays)
+    }
+    
+    private func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
+        newHabitViewControllerDelegate?.updateCollectionViewSection(newCategories: newCategories, section: section, pickedWeekdays: pickedWeekdays)
+        newHabitViewControllerDelegate?.dismiss()
+    }
+    
+    func createTracker(trackerName: String, trackerColor: UIColor, trackerEmoji: String) -> Tracker {
+        return Tracker(id: UUID.init(),
+                       name: trackerName,
+                       color: trackerColor,
+                       emoji: trackerEmoji,
+                       schedule: scheduledWeekdays)
     }
 }
 
@@ -211,6 +221,7 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? TrackerTypeCell else {
+            print("[NewHabitViewController]: tableView - Was unable to dequeue a cell.")
             return UITableViewCell()
         }
         
@@ -228,9 +239,10 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
             print("Переход на категория")
         } else if tableViewOptions[indexPath.row] == "Расписание" {
             let scheduleViewController = ScheduleViewController()
+            scheduleViewController.scheduleViewControllerDelegate = self
             present(scheduleViewController, animated: true)
-//            navigationController?.pushViewController(scheduleViewController, animated: true)
         }
+        
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
@@ -248,6 +260,13 @@ extension NewHabitViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        
         return true
+    }
+}
+
+extension NewHabitViewController: ScheduleViewControllerDelegate {
+    func setNewScheduleWeekdays(pickedWeekdays: [String]) {
+        scheduledWeekdays = pickedWeekdays
     }
 }
