@@ -32,14 +32,14 @@ class TrackersViewController: UIViewController {
     var filteredTrackers: [Tracker] = []
     var filteredCategories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
-    var pickedDateString: String = ""
+    var currentDate: String = ""
     var pickedWeekday: String = ""
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         dateFormatter.dateFormat = "yyyy-MM-dd"
-        pickedDateString = dateFormatter.string(from: Date())
+        currentDate = dateFormatter.string(from: Date())
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
         
         addNavigationTitle()
@@ -77,7 +77,7 @@ class TrackersViewController: UIViewController {
     }
     
     @objc private func datePickerChanged() {
-        pickedDateString = dateFormatter.string(from: datePicker.date)
+        currentDate = dateFormatter.string(from: datePicker.date)
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
         collectionView.reloadData()
     }
@@ -146,10 +146,10 @@ extension TrackersViewController: UICollectionViewDataSource {
                 return 0
             }
             
-            guard let currentDate = getDatePickerDate(),
+            guard let currentDateTemp = getDatePickerDate(),
                     let scheduledIrregularEventTrackersInCategory = category.trackers?.filter({ tracker in
-                        tracker.schedule.contains(pickedDateString) ||
-                        (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDate && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count else {
+                        tracker.schedule.contains(currentDate) ||
+                        (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count else {
                 print("[TrackersViewController]: numberOfSections - Unable to get a date or no trackers in category.")
                 return 0
             }
@@ -159,8 +159,8 @@ extension TrackersViewController: UICollectionViewDataSource {
             if scheduledTrackersInCategory > 0 {
                 filteredTrackers = category.trackers!.filter( { $0.schedule.contains(pickedWeekday) } )
                 filteredTrackers += category.trackers!.filter({ tracker in
-                    tracker.schedule.contains(pickedDateString) ||
-                    (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDate && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } )
+                    tracker.schedule.contains(currentDate) ||
+                    (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } )
                 filteredCategories = [TrackerCategory(title: category.title, trackers: filteredTrackers)]
                 numberOfSections += 1
             }
@@ -183,10 +183,10 @@ extension TrackersViewController: UICollectionViewDataSource {
             return 0
         }
         
-        guard let currentDate = getDatePickerDate(),
+        guard let currentDateTemp = getDatePickerDate(),
                 let scheduledIrregularEventTrackersInCategory = currentCategory.trackers?.filter({ tracker in
-                    tracker.schedule.contains(pickedDateString) ||
-                    (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDate && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count else {
+                    tracker.schedule.contains(currentDate) ||
+                    (tracker.schedule.count == 1 && dateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count else {
             print("[TrackersViewController]: collectionView - Unable to get a date or no trackers in category.")
             return 0
         }
@@ -270,9 +270,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 extension TrackersViewController: NewHabitViewControllerDelegate {
     func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
         self.categories = newCategories
-        if self.collectionView.numberOfSections != 0 && (pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(pickedDateString)) {
+        if self.collectionView.numberOfSections != 0 && (pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(currentDate)) {
             self.collectionView.reloadSections(IndexSet(integer: section))
-        } else if pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(pickedDateString) {
+        } else if pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(currentDate) {
             self.collectionView.insertSections(IndexSet(integer: section))
         }
     }
