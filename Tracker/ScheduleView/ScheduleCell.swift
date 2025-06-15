@@ -12,7 +12,7 @@ final class ScheduleCell: UITableViewCell {
     let dayLabel = UILabel()
     let switcher = UISwitch()
     
-    var delegate: ScheduleCellDelegate?
+    weak var delegate: ScheduleCellDelegate?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

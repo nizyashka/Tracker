@@ -16,7 +16,7 @@ final class TrackerCell: UICollectionViewCell {
     let trackerDayCounterLabel = UILabel()
     let trackerCompleteButton = UIButton()
     
-    var trackerCellDelegate: TrackerCellDelegate?
+    weak var trackerCellDelegate: TrackerCellDelegate?
     
     var indexPath: IndexPath?
     var trackerID: UUID?

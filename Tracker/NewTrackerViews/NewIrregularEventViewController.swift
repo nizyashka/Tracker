@@ -5,24 +5,15 @@
 //  Created by Алексей Непряхин on 06.06.2025.
 //
 
-import Foundation
 import UIKit
 
 final class NewIrregularEventViewController: NewHabitViewController {
-    let dateFormatter = DateFormatter()
     
     //MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
-        
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        addViewTitleLabel(title: "Новое нерегулярное событие")
-        addTrackerNameTextField()
-        configureTableView(height: 75)
-        registerCell()
-        addCancelCreateButtonsStackView()
+        setupUI(title: "Новое нерегулярное событие", height: 75)
     }
     
     override func createTracker(trackerName: String, trackerColor: UIColor, trackerEmoji: String) -> Tracker {
@@ -30,7 +21,7 @@ final class NewIrregularEventViewController: NewHabitViewController {
                        name: trackerName,
                        color: trackerColor,
                        emoji: trackerEmoji,
-                       schedule: [dateFormatter.string(from: Date())])
+                       schedule: [DateFormatter.trackerDateFormatter.string(from: Date())])
     }
 }
 

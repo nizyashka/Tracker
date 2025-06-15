@@ -13,7 +13,7 @@ final class TrackerCreationViewController: UIViewController {
     let stackView = UIStackView()
     let habitButton = UIButton()
     let irregularEventButton = UIButton()
-    var delegate: NewHabitViewControllerDelegate?
+    weak var delegate: NewHabitViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()

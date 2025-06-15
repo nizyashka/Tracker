@@ -5,7 +5,6 @@
 //  Created by Алексей Непряхин on 06.06.2025.
 //
 
-import Foundation
 import UIKit
 
 final class TrackerTypeCell: UITableViewCell {
@@ -17,12 +16,16 @@ final class TrackerTypeCell: UITableViewCell {
         
         contentView.backgroundColor = .ypGray30
         
-        addTypeLabel()
-        addImageView()
+        setupSubviews()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func setupSubviews() {
+        addTypeLabel()
+        addImageView()
     }
     
     private func addTypeLabel() {

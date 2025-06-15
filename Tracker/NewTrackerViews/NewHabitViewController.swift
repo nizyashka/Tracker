@@ -20,7 +20,7 @@ class NewHabitViewController: UIViewController {
     private let createButton = UIButton()
     private let cancelCreateButtonsStackView = UIStackView()
     
-    var newHabitViewControllerDelegate: NewHabitViewControllerDelegate?
+    weak var newHabitViewControllerDelegate: NewHabitViewControllerDelegate?
     
     private let tableViewOptions = ["Категория", "Расписание"]
     private var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
@@ -29,17 +29,21 @@ class NewHabitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupUI(title: "Новая привычка", height: 75)
+    }
+    
+    //MARK: - UI Components Configuration Functions
+    func setupUI(title: String, height: CGFloat) {
         view.backgroundColor = .white
         
-        addViewTitleLabel(title: "Новая привычка")
+        addViewTitleLabel(title: title)
         addTrackerNameTextField()
-        configureTableView(height: 150)
+        configureTableView(height: height)
         registerCell()
         addCancelCreateButtonsStackView()
     }
     
-    //MARK: - UI Components Configuration Functions
-    func addViewTitleLabel(title: String) {
+    private func addViewTitleLabel(title: String) {
         viewTitleLabel.text = title
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -52,7 +56,7 @@ class NewHabitViewController: UIViewController {
         ])
     }
     
-    func addTrackerNameTextField() {
+    private func addTrackerNameTextField() {
         trackerNameTextField.delegate = self
         guard let trackerNameTextFieldDelegate = trackerNameTextField.delegate else {
             print("[NewHabitViewController]: addTrackerNameTextField - No delegate found.")
@@ -60,6 +64,7 @@ class NewHabitViewController: UIViewController {
         }
         
         trackerNameTextFieldDelegate.textFieldDidEndEditing?(trackerNameTextField)
+        trackerNameTextFieldDelegate.textFieldDidChangeSelection?(trackerNameTextField)
         trackerNameTextField.becomeFirstResponder()
         trackerNameTextField.returnKeyType = UIReturnKeyType.done
         trackerNameTextField.placeholder = "Введите название трекера"
@@ -78,7 +83,7 @@ class NewHabitViewController: UIViewController {
         ])
     }
     
-    func configureTableView(height: CGFloat) {
+    private func configureTableView(height: CGFloat) {
         tableView.dataSource = self
         tableView.delegate = self
         
@@ -97,11 +102,11 @@ class NewHabitViewController: UIViewController {
         ])
     }
     
-    func registerCell() {
+    private func registerCell() {
         tableView.register(TrackerTypeCell.self, forCellReuseIdentifier: "cell")
     }
     
-    func addCancelCreateButtonsStackView() {
+    private func addCancelCreateButtonsStackView() {
         cancelCreateButtonsStackView.spacing = 8
         cancelCreateButtonsStackView.axis = .horizontal
         cancelCreateButtonsStackView.distribution = .fillEqually
@@ -249,6 +254,16 @@ extension NewHabitViewController: UITableViewDataSource, UITableViewDelegate {
 
 extension NewHabitViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField.hasText {
+            createButton.backgroundColor = .ypBlack
+            createButton.isEnabled = true
+        } else {
+            createButton.backgroundColor = .ypGrayDisabledButton
+            createButton.isEnabled = false
+        }
+    }
+    
+    func textFieldDidChangeSelection(_ textField: UITextField) {
         if textField.hasText {
             createButton.backgroundColor = .ypBlack
             createButton.isEnabled = true

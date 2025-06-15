@@ -17,7 +17,7 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
     private let tableView = UITableView()
     private let doneButton = UIButton()
     
-    var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
+    weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
     
     private let weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
     var pickedWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
