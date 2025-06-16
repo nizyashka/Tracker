@@ -20,7 +20,7 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
     weak var scheduleViewControllerDelegate: ScheduleViewControllerDelegate?
     
     private let weekdays = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
-    var pickedWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
+    var pickedWeekdays = [2, 3, 4, 5, 6, 7, 1]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,7 +90,8 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
     }
     
     @objc func doneButtonTapped() {
-        scheduleViewControllerDelegate?.setNewScheduleWeekdays(pickedWeekdays: pickedWeekdays)
+        let pickedWeekdaysString = pickedWeekdays.map { String($0) }
+        scheduleViewControllerDelegate?.setNewScheduleWeekdays(pickedWeekdays: pickedWeekdaysString)
         dismiss(animated: true)
     }
     
@@ -101,7 +102,7 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
         }
         
         let removedElement = pickedWeekdays.remove(at: weekdayIndex)
-        pickedWeekdays.insert("-" + removedElement, at: weekdayIndex)
+        pickedWeekdays.insert(-removedElement, at: weekdayIndex)
     }
 }
 
