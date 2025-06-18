@@ -5,20 +5,32 @@
 //  Created by Алексей Непряхин on 06.06.2025.
 //
 
+import Foundation
 import UIKit
 
-final class NewIrregularEventViewController: NewHabitViewController {
-    
-    //MARK: - View Lifecycle
+class NewIrregularEventViewController: NewHabitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
-    override func createTracker(trackerName: String, trackerColor: UIColor, trackerEmoji: String, scheduledWeekdays: [String]) -> Tracker {
-        return Tracker(id: UUID.init(),
-                       name: trackerName,
-                       color: trackerColor,
-                       emoji: trackerEmoji,
-                       schedule: [DateFormatter.trackerDateFormatter.string(from: Date())])
+    override func registerCell() {
+        tableView.register(NewIrregularEventViewCell.self, forCellReuseIdentifier: cellType)
+    }
+}
+
+extension NewIrregularEventViewController {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellType, for: indexPath) as? NewIrregularEventViewCell else {
+            print("[NewHabitViewController] - tableView: Unable to dequeue a cell.")
+            return UITableViewCell()
+        }
+        
+        cell.newTrackerViewCellDelegate = self
+        
+        return cell
     }
 }

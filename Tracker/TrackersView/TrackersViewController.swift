@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol NewHabitViewControllerDelegate: AnyObject {
+protocol NewTrackerViewControllerDelegate: AnyObject {
     func getCategories() -> [TrackerCategory]
     func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String])
     func dismiss()
@@ -138,6 +138,8 @@ extension TrackersViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         var numberOfSections = 0
         
+        print(categories)
+        
         for category in categories {
             guard let scheduledHabitTrackersInCategory = category.trackers?.filter( { $0.schedule.contains(pickedWeekday) } ).count else {
                 print("[TrackersViewController]: numberOfSections - No trackers in category.")
@@ -209,6 +211,9 @@ extension TrackersViewController: UICollectionViewDataSource {
         cell.trackerCellDelegate = self
         cell.trackerID = id
         cell.trackerEmojiSticker.text = filteredCategories[indexPath.section].trackers?[indexPath.row].emoji
+        cell.trackerCard.backgroundColor = filteredCategories[indexPath.section].trackers?[indexPath.row].color
+        cell.trackerCompleteButton.backgroundColor = filteredCategories[indexPath.section].trackers?[indexPath.row].color
+//        cell.circleView.backgroundColor = filteredCategories[indexPath.section].trackers?[indexPath.row].color.withAlphaComponent(0.3)
         
         cell.trackerNameLabel.text = filteredCategories[indexPath.section].trackers?[indexPath.row].name
         
@@ -265,7 +270,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension TrackersViewController: NewHabitViewControllerDelegate {
+extension TrackersViewController: NewTrackerViewControllerDelegate {
     func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
         self.categories = newCategories
         if self.collectionView.numberOfSections != 0 && (pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(currentDate)) {
@@ -314,9 +319,6 @@ extension TrackersViewController: TrackerCellDelegate {
     }
     
     func updateCollectionViewCell(for indexPath: IndexPath) {
-        collectionView.performBatchUpdates {
-            collectionView.deleteItems(at: [indexPath])
-            collectionView.insertItems(at: [indexPath])
-        }
+        collectionView.reloadItems(at: [indexPath])
     }
 }

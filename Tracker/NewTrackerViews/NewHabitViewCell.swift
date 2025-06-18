@@ -11,17 +11,17 @@ protocol ScheduleViewControllerDelegate: AnyObject {
     func setNewScheduleWeekdays(pickedWeekdays: [String])
 }
 
-final class NewTrackerViewCell: UITableViewCell {
-    private let viewTitleLabel = UILabel()
+class NewHabitViewCell: UITableViewCell {
+    let viewTitleLabel = UILabel()
     private let trackerNameTextField = PaddedTextField()
-    private let navigationalTableView = UITableView()
+    let navigationalTableView = UITableView()
+    private let emojiHeaderLabel = UILabel()
+    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private let colorHeaderLabel = UILabel()
+    private let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let cancelButton = UIButton()
     private let createButton = UIButton()
     private let cancelCreateButtonsStackView = UIStackView()
-    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let emojiHeaderLabel = UILabel()
-    private let colorHeaderLabel = UILabel()
-    private let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     
     weak var newTrackerViewCellDelegate: NewTrackerViewCellDelegate?
     
@@ -32,34 +32,38 @@ final class NewTrackerViewCell: UITableViewCell {
                          "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
     
+    private var pickedCategory = ""
+    private var pickedEmoji = ""
+    private var pickedColor: UIColor = .white
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        setupUI(title: "Новая привычка", height: 150)
+        setupUI()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupUI(title: String, height: CGFloat) {
+    private func setupUI() {
         contentView.backgroundColor = .white
         
-        addViewTitleLabel(title: title)
+        addViewTitleLabel()
         addTrackerNameTextField()
-        configureTableView(height: height)
+        configureTableView()
         registerCell()
-        addCancelCreateButtonsStackView()
         addEmojiHeaderLabel()
         configureEmojiCollectionView()
         registerCollectionViewCell()
         configureColorHeaderLabel()
         configureColorCollectionView()
         registerColorCell()
+        addCancelCreateButtonsStackView()
     }
     
-    private func addViewTitleLabel(title: String) {
-        viewTitleLabel.text = title
+    private func addViewTitleLabel() {
+        viewTitleLabel.text = "Новая привычка"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(viewTitleLabel)
@@ -98,7 +102,7 @@ final class NewTrackerViewCell: UITableViewCell {
         ])
     }
     
-    private func configureTableView(height: CGFloat) {
+    private func configureTableView() {
         navigationalTableView.dataSource = self
         navigationalTableView.delegate = self
         
@@ -110,52 +114,14 @@ final class NewTrackerViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             navigationalTableView.topAnchor.constraint(equalTo: trackerNameTextField.bottomAnchor, constant: 24),
-            navigationalTableView.bottomAnchor.constraint(equalTo: navigationalTableView.topAnchor, constant: height),
+            navigationalTableView.bottomAnchor.constraint(equalTo: navigationalTableView.topAnchor, constant: 150),
             navigationalTableView.leadingAnchor.constraint(equalTo: trackerNameTextField.leadingAnchor),
             navigationalTableView.trailingAnchor.constraint(equalTo: trackerNameTextField.trailingAnchor)
         ])
     }
     
     private func registerCell() {
-        navigationalTableView.register(TrackerTypeCell.self, forCellReuseIdentifier: "trackerTypeCell")
-    }
-    
-    private func addCancelCreateButtonsStackView() {
-        cancelCreateButtonsStackView.spacing = 8
-        cancelCreateButtonsStackView.axis = .horizontal
-        cancelCreateButtonsStackView.distribution = .fillEqually
-        cancelCreateButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(cancelCreateButtonsStackView)
-        
-        NSLayoutConstraint.activate([
-            cancelCreateButtonsStackView.heightAnchor.constraint(equalToConstant: 60),
-            cancelCreateButtonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            cancelCreateButtonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            cancelCreateButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
-        ])
-        
-        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        cancelButton.setTitle("Отменить", for: .normal)
-        cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        cancelButton.tintColor = .red
-        cancelButton.layer.borderWidth = 1
-        cancelButton.layer.borderColor = UIColor.ypRed.cgColor
-        cancelButton.setTitleColor(.ypRed, for: .normal)
-        cancelButton.layer.cornerRadius = 16
-        cancelButton.layer.masksToBounds = true
-        cancelButton.translatesAutoresizingMaskIntoConstraints = false
-        cancelCreateButtonsStackView.addArrangedSubview(cancelButton)
-        
-        createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
-        createButton.isEnabled = false
-        createButton.setTitle("Создать", for: .normal)
-        createButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        createButton.backgroundColor = .ypGrayDisabledButton
-        createButton.setTitleColor(.white, for: .normal)
-        createButton.layer.cornerRadius = 16
-        createButton.layer.masksToBounds = true
-        createButton.translatesAutoresizingMaskIntoConstraints = false
-        cancelCreateButtonsStackView.addArrangedSubview(createButton)
+        navigationalTableView.register(TrackerTypeCell.self, forCellReuseIdentifier: "optionsCell")
     }
     
     private func addEmojiHeaderLabel() {
@@ -221,6 +187,44 @@ final class NewTrackerViewCell: UITableViewCell {
         colorCollectionView.register(ColorCell.self, forCellWithReuseIdentifier: "colorCell")
     }
     
+    private func addCancelCreateButtonsStackView() {
+        cancelCreateButtonsStackView.spacing = 8
+        cancelCreateButtonsStackView.axis = .horizontal
+        cancelCreateButtonsStackView.distribution = .fillEqually
+        cancelCreateButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(cancelCreateButtonsStackView)
+        
+        NSLayoutConstraint.activate([
+            cancelCreateButtonsStackView.heightAnchor.constraint(equalToConstant: 60),
+            cancelCreateButtonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            cancelCreateButtonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            cancelCreateButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
+        ])
+        
+        cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        cancelButton.tintColor = .red
+        cancelButton.layer.borderWidth = 1
+        cancelButton.layer.borderColor = UIColor.ypRed.cgColor
+        cancelButton.setTitleColor(.ypRed, for: .normal)
+        cancelButton.layer.cornerRadius = 16
+        cancelButton.layer.masksToBounds = true
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelCreateButtonsStackView.addArrangedSubview(cancelButton)
+        
+        createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
+        createButton.isEnabled = false
+        createButton.setTitle("Создать", for: .normal)
+        createButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        createButton.backgroundColor = .ypGrayDisabledButton
+        createButton.setTitleColor(.white, for: .normal)
+        createButton.layer.cornerRadius = 16
+        createButton.layer.masksToBounds = true
+        createButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelCreateButtonsStackView.addArrangedSubview(createButton)
+    }
+    
     //MARK: - UI Components Actions
     @objc private func cancelButtonTapped() {
         newTrackerViewCellDelegate?.cancel()
@@ -231,21 +235,26 @@ final class NewTrackerViewCell: UITableViewCell {
             print("[NewTrackerViewCell] - createButtonTapped: Unable to get text from trackerNameTextField.")
             return
         }
-        newTrackerViewCellDelegate?.addNewTracker(trackerName: trackerName, trackerCategory: "Категория 1", trackerColor: .ypGreen, trackerEmoji: "🍎", scheduledWeekdays: scheduledWeekdays)
+        
+        let schedule = newTrackerViewCellDelegate?.cellType == "newHabitCell" ? scheduledWeekdays : [DateFormatter.trackerDateFormatter.string(from: Date())]
+        
+        newTrackerViewCellDelegate?.addNewTracker(trackerName: trackerName, trackerCategory: "Категория 1", trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
     }
 }
 
-extension NewTrackerViewCell: UITableViewDataSource, UITableViewDelegate {
+extension NewHabitViewCell: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        let numberOfRowsInSection = newTrackerViewCellDelegate?.cellType == "newHabitCell" ? 2 : 1
+        
+        return numberOfRowsInSection
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "trackerTypeCell", for: indexPath) as? TrackerTypeCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "optionsCell", for: indexPath) as? TrackerTypeCell else {
             print("[NewHabitViewController]: tableView - Was unable to dequeue a cell.")
             return UITableViewCell()
         }
-        
+       
         cell.typeLabel.text = tableViewOptions[indexPath.row]
         
         return cell
@@ -268,7 +277,7 @@ extension NewTrackerViewCell: UITableViewDataSource, UITableViewDelegate {
     }
 }
 
-extension NewTrackerViewCell: UITextFieldDelegate {
+extension NewHabitViewCell: UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         if textField.hasText {
             createButton.backgroundColor = .ypBlack
@@ -296,14 +305,13 @@ extension NewTrackerViewCell: UITextFieldDelegate {
     }
 }
 
-extension NewTrackerViewCell: ScheduleViewControllerDelegate {
+extension NewHabitViewCell: ScheduleViewControllerDelegate {
     func setNewScheduleWeekdays(pickedWeekdays: [String]) {
         scheduledWeekdays = pickedWeekdays
-        print(scheduledWeekdays)
     }
 }
 
-extension NewTrackerViewCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == emojiCollectionView {
             return emoji.count
@@ -340,5 +348,58 @@ extension NewTrackerViewCell: UICollectionViewDataSource, UICollectionViewDelega
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 52, height: 52)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == emojiCollectionView {
+            guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell else {
+                print("[NewTrackerViewCell] - collectionView: Could not find a cell at this indexPath")
+                return
+            }
+            
+            guard let emoji = cell.emojiLabel.text else {
+                print("[NewTrackerViewCell] - collectionView: Could not get emoji from label.")
+                return
+            }
+            
+            cell.layer.cornerRadius = 12
+            cell.layer.masksToBounds = true
+            
+            cell.backgroundColor = .lightGray.withAlphaComponent(0.3)
+            
+            pickedEmoji = emoji
+        } else if collectionView == colorCollectionView {
+            guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell else {
+                print("[NewTrackerViewCell] - collectionView: Could not find a cell at this indexPath")
+                return
+            }
+            
+            guard let color = cell.roundedColorRect.backgroundColor else {
+                print("[NewTrackerViewCell] - collectionView: Could not get color from button.")
+                return
+            }
+            
+            cell.layer.cornerRadius = 12
+            cell.layer.masksToBounds = true
+            
+            cell.layer.borderWidth = 3
+            cell.layer.borderColor = colors[indexPath.row].withAlphaComponent(0.4).cgColor
+            
+            pickedColor = color
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else {
+            print("[NewTrackerViewCell] - collectionView: Could not find a cell at this indexPath")
+            return
+        }
+        
+        if collectionView == emojiCollectionView {
+            cell.backgroundColor = .white
+        } else if collectionView == colorCollectionView {
+            cell.layer.borderWidth = 0
+            cell.layer.borderColor = .none
+        }
     }
 }

@@ -64,7 +64,7 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func addEmojiSticker() {
-        circleView.backgroundColor = .ypGreenPale
+        circleView.backgroundColor = .white.withAlphaComponent(0.3)
         circleView.layer.cornerRadius = 12
         circleView.clipsToBounds = true
         circleView.translatesAutoresizingMaskIntoConstraints = false

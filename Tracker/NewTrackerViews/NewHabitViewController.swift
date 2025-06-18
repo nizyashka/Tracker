@@ -9,28 +9,41 @@ import Foundation
 import UIKit
 
 protocol NewTrackerViewCellDelegate: AnyObject {
+    var cellType: String { get }
     func cancel()
-    func addNewTracker(trackerName: String, trackerCategory: String, trackerColor: UIColor, trackerEmoji: String, scheduledWeekdays: [String])
+    func addNewTracker(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String])
     func present(_ viewController: UIViewController)
 }
 
 class NewHabitViewController: UIViewController {
-    private let tableView = UITableView()
+    let cellType: String
     
-    weak var newHabitViewControllerDelegate: NewHabitViewControllerDelegate?
+    let tableView = UITableView()
+    
+    weak var newHabitViewControllerDelegate: NewTrackerViewControllerDelegate?
+    
+    init(cellType: String, newHabitViewControllerDelegate: NewTrackerViewControllerDelegate? = nil) {
+        self.cellType = cellType
+        self.newHabitViewControllerDelegate = newHabitViewControllerDelegate
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureTableView()
+        registerCell()
     }
     
     private func configureTableView() {
         tableView.delegate = self
         tableView.dataSource = self
         
-        tableView.register(NewTrackerViewCell.self, forCellReuseIdentifier: "cell")
-        
+        tableView.separatorStyle = .none
         tableView.isScrollEnabled = true
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
@@ -43,16 +56,20 @@ class NewHabitViewController: UIViewController {
         ])
     }
     
+    func registerCell() {
+        tableView.register(NewHabitViewCell.self, forCellReuseIdentifier: cellType)
+    }
+    
     private func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
         newHabitViewControllerDelegate?.updateCollectionViewSection(newCategories: newCategories, section: section, pickedWeekdays: pickedWeekdays)
         newHabitViewControllerDelegate?.dismiss()
     }
     
-    func createTracker(trackerName: String, trackerColor: UIColor, trackerEmoji: String, scheduledWeekdays: [String]) -> Tracker {
+    private func createTracker(trackerName: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String]) -> Tracker {
         return Tracker(id: UUID.init(),
                        name: trackerName,
-                       color: trackerColor,
                        emoji: trackerEmoji,
+                       color: trackerColor,
                        schedule: scheduledWeekdays)
     }
 }
@@ -62,7 +79,7 @@ extension NewHabitViewController: NewTrackerViewCellDelegate {
         newHabitViewControllerDelegate?.dismiss()
     }
     
-    func addNewTracker(trackerName: String, trackerCategory: String, trackerColor: UIColor, trackerEmoji: String, scheduledWeekdays: [String]) {
+    func addNewTracker(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String]) {
         var categoryIndex: Int = 0
         
         guard var existingCategories = newHabitViewControllerDelegate?.getCategories() else {
@@ -73,7 +90,7 @@ extension NewHabitViewController: NewTrackerViewCellDelegate {
         if existingCategories.isEmpty {
             let newCategory = TrackerCategory(
                 title: trackerCategory,
-                trackers: [createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji, scheduledWeekdays: scheduledWeekdays)])
+                trackers: [createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)])
             
             updateCollectionViewSection(newCategories: [newCategory], section: 0, pickedWeekdays: scheduledWeekdays)
             
@@ -82,7 +99,7 @@ extension NewHabitViewController: NewTrackerViewCellDelegate {
         
         for existingCategory in existingCategories {
             if existingCategory.title == trackerCategory {
-                let newTracker = createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji, scheduledWeekdays: scheduledWeekdays)
+                let newTracker = createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)
                 let newTrackers = (existingCategory.trackers ?? []) + [newTracker]
                 let newCategory = TrackerCategory(
                     title: trackerCategory,
@@ -103,7 +120,7 @@ extension NewHabitViewController: NewTrackerViewCellDelegate {
         
         let newCategory = TrackerCategory(
             title: trackerCategory,
-            trackers: [createTracker(trackerName: trackerName, trackerColor: trackerColor, trackerEmoji: trackerEmoji, scheduledWeekdays: scheduledWeekdays)])
+            trackers: [createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)])
         
         let newCategories = existingCategories + [newCategory]
         
@@ -121,7 +138,7 @@ extension NewHabitViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as? NewTrackerViewCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellType, for: indexPath) as? NewHabitViewCell else {
             print("[NewHabitViewController] - tableView: Unable to dequeue a cell.")
             return UITableViewCell()
         }

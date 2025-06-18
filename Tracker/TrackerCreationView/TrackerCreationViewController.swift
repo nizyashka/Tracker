@@ -13,7 +13,7 @@ final class TrackerCreationViewController: UIViewController {
     let stackView = UIStackView()
     let habitButton = UIButton()
     let irregularEventButton = UIButton()
-    weak var delegate: NewHabitViewControllerDelegate?
+    weak var delegate: NewTrackerViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,15 +74,13 @@ final class TrackerCreationViewController: UIViewController {
     }
     
     @objc private func habitButtonTapped() {
-        let newHabitViewController = NewHabitViewController()
-        newHabitViewController.newHabitViewControllerDelegate = delegate
+        let newHabitViewController = NewHabitViewController(cellType: "newHabitCell", newHabitViewControllerDelegate: delegate)
         newHabitViewController.modalPresentationStyle = .pageSheet
         present(newHabitViewController, animated: true)
     }
     
     @objc private func irregularEventButtonTapped() {
-        let newIrregularEventViewController = NewIrregularEventViewController()
-        newIrregularEventViewController.newHabitViewControllerDelegate = delegate
+        let newIrregularEventViewController = NewIrregularEventViewController(cellType: "newIrregularEventCell", newHabitViewControllerDelegate: delegate)
         newIrregularEventViewController.modalPresentationStyle = .pageSheet
         present(newIrregularEventViewController, animated: true)
     }
