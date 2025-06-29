@@ -157,7 +157,7 @@ extension TrackersViewController: UICollectionViewDataSource {
             
             let scheduledIrregularEventTrackersInCategory = category.trackers.filter({ tracker in
                 tracker.schedule.contains(currentDate) ||
-                (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count
+                (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count //
             
             let scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
             
@@ -338,9 +338,5 @@ extension TrackersViewController: DataProviderDelegate {
         categories = dataProvider.trackerCategories
         
         collectionView.reloadData()
-        
-//        collectionView.performBatchUpdates {
-//            collectionView.insertItems(at: [index])
-//        }
     }
 }

@@ -5,7 +5,6 @@
 //  Created by Алексей Непряхин on 25.06.2025.
 //
 
-import UIKit
 import CoreData
 
 protocol DataProviderDelegate: AnyObject {
@@ -25,11 +24,7 @@ final class DataProvider: NSObject {
     private var insertedIndex: IndexPath?
     
     var trackerCategories: [TrackerCategory] {
-        guard let trackerCategories = toTrackerCategory() else {
-            return []
-        }
-        
-        return trackerCategories
+        return toTrackerCategory() ?? []
     }
     
     var trackerRecords: [TrackerRecord] {
@@ -96,12 +91,21 @@ final class DataProvider: NSObject {
             }
             
             for tracker in trackers {
+                guard let id = tracker.id,
+                      let name = tracker.name,
+                      let emoji = tracker.emoji,
+                      let color = tracker.color,
+                      let schedule = tracker.schedule else {
+                    print("[DataProvider] - toTrackerCategory: Error getting tracker info.")
+                    return nil
+                }
+                
                 let trackerTracker = Tracker(
-                    id: tracker.id!,
-                    name: tracker.name!,
-                    emoji: tracker.emoji!,
-                    color: tracker.color!,
-                    schedule: tracker.schedule!)
+                    id: id,
+                    name: name,
+                    emoji: emoji,
+                    color: color,
+                    schedule: schedule)
                 
                 trackersTracker.append(trackerTracker)
             }
@@ -145,6 +149,14 @@ final class DataProvider: NSObject {
                 }
             }
         }
+        
+//        На потом
+//        func getTrackerByID(id: UUID) -> TrackersCoreData? {
+//            fetchedResultsController.fetchedObjects?
+//                .compactMap { $0.trackers as? Set<TrackersCoreData> }
+//                .flatMap { $0 }
+//                .first { $0.id == id }
+//        }
         
         return nil
     }

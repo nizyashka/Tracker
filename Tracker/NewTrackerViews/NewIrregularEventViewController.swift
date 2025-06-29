@@ -5,10 +5,9 @@
 //  Created by Алексей Непряхин on 06.06.2025.
 //
 
-import Foundation
 import UIKit
 
-class NewIrregularEventViewController: NewHabitViewController {
+final class NewIrregularEventViewController: NewHabitViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
