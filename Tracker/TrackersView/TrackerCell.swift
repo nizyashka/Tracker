@@ -5,7 +5,6 @@
 //  Created by Алексей Непряхин on 01.06.2025.
 //
 
-import Foundation
 import UIKit
 
 final class TrackerCell: UICollectionViewCell {
@@ -15,6 +14,8 @@ final class TrackerCell: UICollectionViewCell {
     let trackerEmojiSticker = UILabel()
     let trackerDayCounterLabel = UILabel()
     let trackerCompleteButton = UIButton()
+    
+    let dataProvider = DataProvider.shared
     
     weak var trackerCellDelegate: TrackerCellDelegate?
     
@@ -64,7 +65,7 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     private func addEmojiSticker() {
-        circleView.backgroundColor = .ypGreenPale
+        circleView.backgroundColor = .white.withAlphaComponent(0.3)
         circleView.layer.cornerRadius = 12
         circleView.clipsToBounds = true
         circleView.translatesAutoresizingMaskIntoConstraints = false
@@ -118,7 +119,8 @@ final class TrackerCell: UICollectionViewCell {
         guard let currentDate = trackerCellDelegate?.getCurrentDate(),
               let datePickerDate = trackerCellDelegate?.getDatePickerDate(),
               let indexPath,
-              let trackerID else {
+              let trackerID,
+              let tracker = dataProvider.getTrackerByID(id: trackerID) else {
             print("[TrackerCell]: trackerCompleteButtonTapped - Unable to get a value.")
             return
         }
@@ -128,12 +130,19 @@ final class TrackerCell: UICollectionViewCell {
                 trackerCompleteButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
                 trackerCompleteButton.layer.opacity = 0.7
                 
-                trackerCellDelegate?.trackerCompleted(for: trackerID, at: datePickerDate)
+                dataProvider.trackerRecordsStore.addTrackerRecord(tracker: tracker, date: datePickerDate)
+                trackerCellDelegate?.trackerCompleted()
             }
         } else {
             trackerCompleteButton.setImage(UIImage(systemName: "plus"), for: .normal)
             trackerCompleteButton.layer.opacity = 1
-            trackerCellDelegate?.trackerFailed(for: trackerID, at: datePickerDate)
+            
+            guard let record = dataProvider.getTrackerRecordByIDAndDate(id: trackerID, date: datePickerDate) else {
+                return
+            }
+            
+            dataProvider.trackerRecordsStore.deleteTrackerRecord(record, tracker: tracker)
+            trackerCellDelegate?.trackerFailed()
         }
         
         trackerCellDelegate?.updateCollectionViewCell(for: indexPath)

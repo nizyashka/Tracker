@@ -5,7 +5,6 @@
 //  Created by Алексей Непряхин on 09.06.2025.
 //
 
-import Foundation
 import UIKit
 
 final class ScheduleCell: UITableViewCell {

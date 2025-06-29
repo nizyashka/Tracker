@@ -5,7 +5,6 @@
 //  Created by Алексей Непряхин on 26.05.2025.
 //
 
-import Foundation
 import UIKit
 
 final class StatisticsViewController: UIViewController {
