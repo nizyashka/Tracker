@@ -10,9 +10,9 @@ import UIKit
 
 protocol NewTrackerViewCellDelegate: AnyObject {
     var cellType: String { get }
-    func cancel()
-    func addNewTracker(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String])
+    func addNewTrackerToCoreData(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: String, scheduledWeekdays: [String])
     func present(_ viewController: UIViewController)
+    func cancel()
 }
 
 class NewHabitViewController: UIViewController {
@@ -21,6 +21,8 @@ class NewHabitViewController: UIViewController {
     let tableView = UITableView()
     
     weak var newHabitViewControllerDelegate: NewTrackerViewControllerDelegate?
+    
+    let dataProvider = DataProvider.shared
     
     init(cellType: String, newHabitViewControllerDelegate: NewTrackerViewControllerDelegate? = nil) {
         self.cellType = cellType
@@ -60,75 +62,41 @@ class NewHabitViewController: UIViewController {
         tableView.register(NewHabitViewCell.self, forCellReuseIdentifier: cellType)
     }
     
-    private func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
-        newHabitViewControllerDelegate?.updateCollectionViewSection(newCategories: newCategories, section: section, pickedWeekdays: pickedWeekdays)
+    private func updateCollectionViewSectionCoreData() {
+        newHabitViewControllerDelegate?.updateCollectionView()
         newHabitViewControllerDelegate?.dismiss()
-    }
-    
-    private func createTracker(trackerName: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String]) -> Tracker {
-        return Tracker(id: UUID.init(),
-                       name: trackerName,
-                       emoji: trackerEmoji,
-                       color: trackerColor,
-                       schedule: scheduledWeekdays)
     }
 }
 
 extension NewHabitViewController: NewTrackerViewCellDelegate {
-    func cancel() {
-        newHabitViewControllerDelegate?.dismiss()
-    }
-    
-    func addNewTracker(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: UIColor, scheduledWeekdays: [String]) {
-        var categoryIndex: Int = 0
-        
-        guard var existingCategories = newHabitViewControllerDelegate?.getCategories() else {
-            print("[NewHabitViewController]: createButtonTapped - Categories not found.")
-            return
-        }
-        
-        if existingCategories.isEmpty {
-            let newCategory = TrackerCategory(
-                title: trackerCategory,
-                trackers: [createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)])
-            
-            updateCollectionViewSection(newCategories: [newCategory], section: 0, pickedWeekdays: scheduledWeekdays)
-            
-            return
-        }
-        
-        for existingCategory in existingCategories {
-            if existingCategory.title == trackerCategory {
-                let newTracker = createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)
-                let newTrackers = (existingCategory.trackers ?? []) + [newTracker]
-                let newCategory = TrackerCategory(
-                    title: trackerCategory,
-                    trackers: newTrackers)
-                
-                if let index = existingCategories.firstIndex(where: { $0.title == newCategory.title }) {
-                    categoryIndex = index
-                    existingCategories[index] = newCategory
-                }
-                
-                let newCategories = existingCategories
-                
-                updateCollectionViewSection(newCategories: newCategories, section: categoryIndex, pickedWeekdays: scheduledWeekdays)
-                
+    func addNewTrackerToCoreData(trackerName: String, trackerCategory: String, trackerEmoji: String, trackerColor: String, scheduledWeekdays: [String]) {
+        if dataProvider.trackerCategories.contains(where: { $0.title == trackerCategory }) {
+            guard let categoryIndex = dataProvider.trackerCategories.firstIndex(where: { $0.title == trackerCategory }) else {
                 return
             }
+            
+            let category = dataProvider.trackerCategoriesStore.getCategoryByIndex(index: categoryIndex)
+            dataProvider.trackersStore.addNewTracker(name: trackerName, category: category, emoji: trackerEmoji, color: trackerColor, schedule: scheduledWeekdays)
+            updateCollectionViewSectionCoreData()
+        } else {
+            guard let category = dataProvider.trackerCategoriesStore.addNewCategory(title: trackerCategory) else {
+                print("[NewHabitViewController] - addNewTrackerToCoreData: Error adding a category.")
+                return
+            }
+            
+            dataProvider.trackersStore.addNewTracker(name: trackerName, category: category, emoji: trackerEmoji, color: trackerColor, schedule: scheduledWeekdays)
+            updateCollectionViewSectionCoreData()
+            
+            return
         }
-        
-        let newCategory = TrackerCategory(
-            title: trackerCategory,
-            trackers: [createTracker(trackerName: trackerName, trackerEmoji: trackerEmoji, trackerColor: trackerColor, scheduledWeekdays: scheduledWeekdays)])
-        
-        let newCategories = existingCategories + [newCategory]
-        
-        updateCollectionViewSection(newCategories: newCategories, section: newCategories.count - 1, pickedWeekdays: scheduledWeekdays)
     }
     
     func present(_ viewController: UIViewController) {
         present(viewController, animated: true)
+    }
+    
+    func cancel() {
+        newHabitViewControllerDelegate?.dismiss()
     }
 }
 

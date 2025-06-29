@@ -30,11 +30,15 @@ class NewHabitViewCell: UITableViewCell {
     private let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                          "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                          "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
-    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
+//    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
+    
+    private let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
     
     private var pickedCategory = ""
     private var pickedEmoji = ""
-    private var pickedColor: UIColor = .white
+    private var pickedColor = ""
+    
+    let dataProvider = DataProvider.shared
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -144,8 +148,8 @@ class NewHabitViewCell: UITableViewCell {
         contentView.addSubview(emojiCollectionView)
         
         NSLayoutConstraint.activate([
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 204),
             emojiCollectionView.topAnchor.constraint(equalTo: emojiHeaderLabel.bottomAnchor, constant: 24),
+            emojiCollectionView.bottomAnchor.constraint(equalTo: emojiCollectionView.topAnchor, constant: 204),
             emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18)
         ])
@@ -175,9 +179,8 @@ class NewHabitViewCell: UITableViewCell {
         contentView.addSubview(colorCollectionView)
         
         NSLayoutConstraint.activate([
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 204),
             colorCollectionView.topAnchor.constraint(equalTo: colorHeaderLabel.bottomAnchor, constant: 24),
-            colorCollectionView.bottomAnchor.constraint(equalTo: cancelCreateButtonsStackView.topAnchor, constant: -16),
+            colorCollectionView.bottomAnchor.constraint(equalTo: colorCollectionView.topAnchor, constant: 204),
             colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 18),
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -18)
         ])
@@ -196,6 +199,7 @@ class NewHabitViewCell: UITableViewCell {
         
         NSLayoutConstraint.activate([
             cancelCreateButtonsStackView.heightAnchor.constraint(equalToConstant: 60),
+            cancelCreateButtonsStackView.topAnchor.constraint(equalTo: colorCollectionView.bottomAnchor, constant: 16),
             cancelCreateButtonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             cancelCreateButtonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             cancelCreateButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
@@ -238,7 +242,7 @@ class NewHabitViewCell: UITableViewCell {
         
         let schedule = newTrackerViewCellDelegate?.cellType == "newHabitCell" ? scheduledWeekdays : [DateFormatter.trackerDateFormatter.string(from: Date())]
         
-        newTrackerViewCellDelegate?.addNewTracker(trackerName: trackerName, trackerCategory: "Категория 1", trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
+        newTrackerViewCellDelegate?.addNewTrackerToCoreData(trackerName: trackerName, trackerCategory: "Категория 1", trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
     }
 }
 
@@ -316,7 +320,7 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
         if collectionView == emojiCollectionView {
             return emoji.count
         } else if collectionView == colorCollectionView {
-            return colors.count
+            return colorNames.count
         }
         
         return 0
@@ -338,7 +342,7 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
                 return UICollectionViewCell()
             }
             
-            cell.roundedColorRect.backgroundColor = colors[indexPath.row]
+            cell.roundedColorRect.backgroundColor = UIColor(named: colorNames[indexPath.row])
             
             return cell
         }
@@ -374,18 +378,13 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
                 return
             }
             
-            guard let color = cell.roundedColorRect.backgroundColor else {
-                print("[NewTrackerViewCell] - collectionView: Could not get color from button.")
-                return
-            }
-            
             cell.layer.cornerRadius = 12
             cell.layer.masksToBounds = true
             
             cell.layer.borderWidth = 3
-            cell.layer.borderColor = colors[indexPath.row].withAlphaComponent(0.4).cgColor
+            cell.layer.borderColor = UIColor(named: colorNames[indexPath.row])!.withAlphaComponent(0.4).cgColor
             
-            pickedColor = color
+            pickedColor = colorNames[indexPath.row]
         }
     }
     
