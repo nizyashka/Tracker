@@ -373,7 +373,8 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
             
             pickedEmoji = emoji
         } else if collectionView == colorCollectionView {
-            guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell else {
+            guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell,
+            let color = UIColor(named: colorNames[indexPath.row]) else {
                 print("[NewTrackerViewCell] - collectionView: Could not find a cell at this indexPath")
                 return
             }
@@ -382,7 +383,7 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
             cell.layer.masksToBounds = true
             
             cell.layer.borderWidth = 3
-            cell.layer.borderColor = UIColor(named: colorNames[indexPath.row])!.withAlphaComponent(0.4).cgColor
+            cell.layer.borderColor = color.withAlphaComponent(0.4).cgColor
             
             pickedColor = colorNames[indexPath.row]
         }

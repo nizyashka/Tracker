@@ -86,7 +86,8 @@ final class DataProvider: NSObject {
         var trackersTracker: [Tracker] = []
         
         for category in categories {
-            guard let trackers = category.trackers as? Set<TrackersCoreData> else {
+            guard let trackers = category.trackers as? Set<TrackersCoreData>,
+                  let categoryTitle = category.title else {
                 return nil
             }
             
@@ -110,7 +111,7 @@ final class DataProvider: NSObject {
                 trackersTracker.append(trackerTracker)
             }
             
-            categoriesTrackerCategory.append(TrackerCategory(title: category.title!, trackers: trackersTracker))
+            categoriesTrackerCategory.append(TrackerCategory(title: categoryTitle, trackers: trackersTracker))
             trackersTracker = []
         }
         

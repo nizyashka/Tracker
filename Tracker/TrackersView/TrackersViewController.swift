@@ -165,7 +165,7 @@ extension TrackersViewController: UICollectionViewDataSource {
                 filteredTrackers = category.trackers.filter( { $0.schedule.contains(pickedWeekday) } )
                 filteredTrackers += category.trackers.filter({ tracker in
                     tracker.schedule.contains(currentDate) ||
-                    (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } )
+                    (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } )
                 filteredCategories += [TrackerCategory(title: category.title, trackers: filteredTrackers)]
                 numberOfSections += 1
             }
@@ -193,7 +193,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         let scheduledIrregularEventTrackersInCategory = currentCategory.trackers.filter({ tracker in
             tracker.schedule.contains(currentDate) ||
-            (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule[0])! < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count
+            (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count
         
         let scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
         
@@ -243,7 +243,9 @@ extension TrackersViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! CategoryHeaderSupplementaryView
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as? CategoryHeaderSupplementaryView else {
+            return UICollectionReusableView()
+        }
         
         view.titleLabel.text = categories[indexPath.section].title
         view.titleLabel.text = categories[indexPath.section].title
