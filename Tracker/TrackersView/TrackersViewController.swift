@@ -37,8 +37,13 @@ final class TrackersViewController: UIViewController {
     var currentDate: String = ""
     var pickedWeekday: String = ""
     
+    let pageViewController = PageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        pageViewController.modalPresentationStyle = .overFullScreen
+        present(pageViewController, animated: false, completion: nil)
         
         currentDate = DateFormatter.trackerDateFormatter.string(from: Date())
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
@@ -54,6 +59,20 @@ final class TrackersViewController: UIViewController {
         showPlaceholder()
         configureCollectionView()
         registerCellAndSupplementaryView()
+        
+//        let pageViewController = PageViewController()
+//        addChild(pageViewController)
+//        view.insertSubview(pageViewController.view, aboveSubview: tabBarController!.view)
+//        
+//        if let childView = pageViewController.view {
+//            childView.translatesAutoresizingMaskIntoConstraints = false
+//            childView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+//            childView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+//            childView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+//            childView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+//        }
+//        
+//        pageViewController.didMove(toParent: self)
     }
     
     private func addNavigationTitle() {
