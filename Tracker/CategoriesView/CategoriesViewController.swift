@@ -98,13 +98,13 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
-    func bind() {
+    private func bind() {
         viewModel?.categoryAdded = { [weak self] in
             self?.insertNewCategory()
         }
     }
     
-    func insertNewCategory() {
+    private func insertNewCategory() {
         categoriesTableView.reloadData()
     }
 }

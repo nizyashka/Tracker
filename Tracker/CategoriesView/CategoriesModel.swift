@@ -12,7 +12,7 @@ enum CoreDataError: Error {
 }
 
 final class CategoriesModel {
-    let dataProvider = DataProvider.shared
+    private let dataProvider = DataProvider.shared
     
     func getCategoriesFromCoreData() -> [TrackerCategory] {
         return dataProvider.trackerCategories

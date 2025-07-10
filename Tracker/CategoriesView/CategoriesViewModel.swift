@@ -15,7 +15,7 @@ final class CategoriesViewModel {
         return trackerCategories
     }
     
-    weak var delegate: CategoriesViewModelDelegate?
+    private weak var delegate: CategoriesViewModelDelegate?
     
     private let model = CategoriesModel()
     
