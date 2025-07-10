@@ -14,9 +14,9 @@ protocol OnboardingViewControllerDelegate: AnyObject {
 class FirstOnboardingViewController: UIViewController {
     let imageView = UIImageView()
     let label = UILabel()
-    let button = UIButton()
+    private let button = UIButton()
     
-    var onBoardingViewControllerDelegate: OnboardingViewControllerDelegate? = nil
+    weak var onBoardingViewControllerDelegate: OnboardingViewControllerDelegate? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,13 +24,13 @@ class FirstOnboardingViewController: UIViewController {
         setupUI()
     }
     
-    func setupUI() {
+    private func setupUI() {
         addImageView()
         addButton()
         addLabel()
     }
     
-    func addImageView() {
+    private func addImageView() {
         guard let image = UIImage(named: "OnboardingScreen_1") else {
             print("No image.")
             return
@@ -48,7 +48,7 @@ class FirstOnboardingViewController: UIViewController {
         ])
     }
     
-    func addLabel() {
+    private func addLabel() {
         label.text = "Отслеживайте только то, что хотите"
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         label.numberOfLines = 0
@@ -65,7 +65,7 @@ class FirstOnboardingViewController: UIViewController {
         ])
     }
     
-    func addButton() {
+    private func addButton() {
         button.setTitle("Вот это технологии!", for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
@@ -85,7 +85,7 @@ class FirstOnboardingViewController: UIViewController {
         ])
     }
     
-    @objc func buttonTapped() {
+    @objc private func buttonTapped() {
         onBoardingViewControllerDelegate?.dismiss()
     }
 }

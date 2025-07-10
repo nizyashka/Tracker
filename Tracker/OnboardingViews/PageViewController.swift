@@ -8,7 +8,7 @@
 import UIKit
 
 final class PageViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate, OnboardingViewControllerDelegate {
-    lazy var pages: [UIViewController] = {
+    private lazy var pages: [UIViewController] = {
         let firstOnboardingViewController = FirstOnboardingViewController()
         firstOnboardingViewController.onBoardingViewControllerDelegate = self
         let secondOnboardingViewController = SecondOnboardingViewController()
@@ -17,7 +17,7 @@ final class PageViewController: UIPageViewController, UIPageViewControllerDataSo
         return [firstOnboardingViewController, secondOnboardingViewController]
     }()
     
-    lazy var pageControl: UIPageControl = {
+    private lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
         pageControl.numberOfPages = pages.count
         pageControl.currentPage = 0
