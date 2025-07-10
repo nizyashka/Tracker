@@ -11,6 +11,10 @@ protocol ScheduleViewControllerDelegate: AnyObject {
     func setNewScheduleWeekdays(pickedWeekdays: [String])
 }
 
+protocol CategoriesViewModelDelegate: AnyObject {
+    func setTrackerCategory(categoryName: String)
+}
+
 class NewHabitViewCell: UITableViewCell {
     let viewTitleLabel = UILabel()
     private let trackerNameTextField = PaddedTextField()
@@ -26,17 +30,17 @@ class NewHabitViewCell: UITableViewCell {
     weak var newTrackerViewCellDelegate: NewTrackerViewCellDelegate?
     
     private let tableViewOptions = ["Категория", "Расписание"]
+    private var trackerCategory: String?
     private var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
+    private var pickedEmoji: String?
+    private var pickedColor: String?
+    
     private let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                          "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                          "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
 //    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
     
     private let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
-    
-    private var pickedCategory = ""
-    private var pickedEmoji = ""
-    private var pickedColor = ""
     
     let dataProvider = DataProvider.shared
     
@@ -240,9 +244,24 @@ class NewHabitViewCell: UITableViewCell {
             return
         }
         
+        guard let trackerCategory else {
+            print("[NewTrackerViewCell] - createButtonTapped: No category was chosen.")
+            return
+        }
+        
+        guard let pickedEmoji else {
+            print("[NewTrackerViewCell] - createButtonTapped: No emoji was chosen.")
+            return
+        }
+        
+        guard let pickedColor else {
+            print("[NewTrackerViewCell] - createButtonTapped: No color was chosen.")
+            return
+        }
+        
         let schedule = newTrackerViewCellDelegate?.cellType == "newHabitCell" ? scheduledWeekdays : [DateFormatter.trackerDateFormatter.string(from: Date())]
         
-        newTrackerViewCellDelegate?.addNewTrackerToCoreData(trackerName: trackerName, trackerCategory: "Категория 1", trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
+        newTrackerViewCellDelegate?.addNewTrackerToCoreData(trackerName: trackerName, trackerCategory: trackerCategory, trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
     }
 }
 
@@ -270,7 +289,9 @@ extension NewHabitViewCell: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableViewOptions[indexPath.row] == "Категория" {
-            print("Переход на категория")
+            let viewModel = CategoriesViewModel(delegate: self)
+            let categoriesViewController = CategoriesViewController(viewModel: viewModel)
+            newTrackerViewCellDelegate?.present(categoriesViewController)
         } else if tableViewOptions[indexPath.row] == "Расписание" {
             let scheduleViewController = ScheduleViewController()
             scheduleViewController.scheduleViewControllerDelegate = self
@@ -312,6 +333,12 @@ extension NewHabitViewCell: UITextFieldDelegate {
 extension NewHabitViewCell: ScheduleViewControllerDelegate {
     func setNewScheduleWeekdays(pickedWeekdays: [String]) {
         scheduledWeekdays = pickedWeekdays
+    }
+}
+
+extension NewHabitViewCell: CategoriesViewModelDelegate {
+    func setTrackerCategory(categoryName: String) {
+        trackerCategory = categoryName
     }
 }
 

@@ -78,7 +78,6 @@ class FirstOnboardingViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             button.heightAnchor.constraint(equalToConstant: 60),
-//            button.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 160),
             button.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -84),
             button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
