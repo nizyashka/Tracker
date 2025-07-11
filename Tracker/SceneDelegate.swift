@@ -20,12 +20,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let firstNavigationController = UINavigationController(rootViewController: TrackersViewController())
+        firstNavigationController.navigationBar.backgroundColor = .white
         firstNavigationController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TrackersTabBarImage"), tag: 0)
         
         let secondNavigationController = UINavigationController(rootViewController: StatisticsViewController())
+        secondNavigationController.navigationBar.backgroundColor = .white
         secondNavigationController.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "StatisticsTabBarImage"), tag: 1)
         
         let tabBarController = UITabBarController()
+        tabBarController.tabBar.backgroundColor = .white
         tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
         
         window?.rootViewController = tabBarController

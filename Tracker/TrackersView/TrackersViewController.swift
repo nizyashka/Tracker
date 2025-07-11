@@ -40,6 +40,8 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .white
+        
         currentDate = DateFormatter.trackerDateFormatter.string(from: Date())
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
         

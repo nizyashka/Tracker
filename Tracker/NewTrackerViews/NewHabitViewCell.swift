@@ -429,4 +429,8 @@ extension NewHabitViewCell: UICollectionViewDataSource, UICollectionViewDelegate
             cell.layer.borderColor = .none
         }
     }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 5
+    }
 }
