@@ -17,30 +17,30 @@ protocol CategoriesViewModelDelegate: AnyObject {
 
 class NewHabitViewCell: UITableViewCell {
     let viewTitleLabel = UILabel()
-    private let trackerNameTextField = PaddedTextField()
+    let trackerNameTextField = PaddedTextField()
     let navigationalTableView = UITableView()
     private let emojiHeaderLabel = UILabel()
-    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let colorHeaderLabel = UILabel()
-    private let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let cancelButton = UIButton()
-    private let createButton = UIButton()
-    private let cancelCreateButtonsStackView = UIStackView()
+     let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+     let cancelButton = UIButton()
+     let createButton = UIButton()
+     let cancelCreateButtonsStackView = UIStackView()
     
     weak var newTrackerViewCellDelegate: NewTrackerViewCellDelegate?
     
-    private let tableViewOptions = ["Категория", "Расписание"]
-    private var trackerCategory: String?
-    private var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
-    private var pickedEmoji: String?
-    private var pickedColor: String?
+     let tableViewOptions = ["Категория", "Расписание"]
+     var trackerCategory: String?
+     var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
+     var pickedEmoji: String?
+     var pickedColor: String?
     
-    private let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
+     let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                          "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                          "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
 //    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
     
-    private let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
+     let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
     
     let dataProvider = DataProvider.shared
     
@@ -148,6 +148,7 @@ class NewHabitViewCell: UITableViewCell {
         emojiCollectionView.delegate = self
         emojiCollectionView.dataSource = self
         
+        emojiCollectionView.allowsSelection = true
         emojiCollectionView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(emojiCollectionView)
         

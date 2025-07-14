@@ -15,7 +15,7 @@ protocol NewTrackerViewCellDelegate: AnyObject {
 }
 
 class NewHabitViewController: UIViewController {
-    let cellType: String
+    var cellType: String
     
     let tableView = UITableView()
     

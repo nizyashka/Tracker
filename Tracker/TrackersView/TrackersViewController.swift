@@ -151,6 +151,21 @@ final class TrackersViewController: UIViewController {
         noTrackersPlaceholderImageView.removeFromSuperview()
         noTrackersPlaceholderLabel.removeFromSuperview()
     }
+    
+    private func contextualMenuEditTabTapped(for tracker: Tracker, in category: TrackerCategory) {
+        let cellType = tracker.schedule.count > 1 ? "newHabitCell" : "newIrregularEventCell"
+        
+        let trackerEditViewController = TrackerEditViewController(cellType: cellType,
+                                                                  trackerName: tracker.name,
+                                                                  trackerCategory: category.title,
+                                                                  trackerSchedule: tracker.schedule,
+                                                                  trackerEmoji: tracker.emoji,
+                                                                  trackerColor: tracker.color,
+                                                                  trackerEditViewControllerDelegate: self)
+        trackerEditViewController.modalPresentationStyle = .pageSheet
+        present(trackerEditViewController, animated: true)
+        
+    }
 }
 
 extension TrackersViewController: UICollectionViewDataSource {
@@ -262,6 +277,42 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         return view
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        guard indexPaths.count > 0 else {
+            return nil
+        }
+        
+        let indexPath = indexPaths[0]
+        
+        let category = filteredCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.row]
+        
+        return UIContextMenuConfiguration(actionProvider: { actions in
+            return UIMenu(children: [
+                UIAction(title: "Редактировать") { [weak self] _ in self?.contextualMenuEditTabTapped(for: tracker, in: category) },
+                UIAction(title: "Удалить", attributes: .destructive) { _ in}
+            ])
+        })
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, highlightPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+            print("[TrackersViewController] - collectionView: Error getting a cell by index path.")
+            return nil
+        }
+        
+        return UITargetedPreview(view: cell.trackerCard)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfiguration configuration: UIContextMenuConfiguration, dismissalPreviewForItemAt indexPath: IndexPath) -> UITargetedPreview? {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? TrackerCell else {
+            print("[TrackersViewController] - collectionView: Error getting a cell by index path.")
+            return nil
+        }
+        
+        return UITargetedPreview(view: cell.trackerCard)
+    }
 }
 
 extension TrackersViewController: UICollectionViewDelegateFlowLayout {
@@ -351,4 +402,8 @@ extension TrackersViewController: DataProviderDelegate {
         
         collectionView.reloadData()
     }
+}
+
+extension TrackersViewController: TrackerEditViewControllerDelegate {
+    
 }

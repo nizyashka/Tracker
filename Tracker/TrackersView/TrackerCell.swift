@@ -8,7 +8,7 @@
 import UIKit
 
 final class TrackerCell: UICollectionViewCell {
-    let trackerCard = UIButton()
+    let trackerCard = UIView()
     let trackerNameLabel = UILabel()
     let circleView = UIView()
     let trackerEmojiSticker = UILabel()
