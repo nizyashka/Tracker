@@ -12,7 +12,7 @@ protocol TrackerEditViewControllerDelegate: AnyObject {
 }
 
 final class TrackerEditViewController: NewHabitViewController {
-    var trackerName: String
+    var trackerName: String?
     var trackerCategory: String
     var trackerSchedule: [String]
     var trackerEmoji: String
