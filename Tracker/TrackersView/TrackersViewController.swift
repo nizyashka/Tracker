@@ -8,8 +8,6 @@
 import UIKit
 
 protocol NewTrackerViewControllerDelegate: AnyObject {
-    func getCategories() -> [TrackerCategory]
-    func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String])
     func updateCollectionView()
     func dismiss()
 }
@@ -40,8 +38,6 @@ final class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
-        
         currentDate = DateFormatter.trackerDateFormatter.string(from: Date())
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
         
@@ -50,10 +46,21 @@ final class TrackersViewController: UIViewController {
         categories = dataProvider.trackerCategories
         completedTrackers = dataProvider.trackerRecords
         
+        setupUI()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         showOnboarding()
-        addNavigationTitle()
-        addButton()
-        addDatePicker()
+    }
+    
+    private func setupUI() {
+        view.backgroundColor = .white
+        
+        configureNavigationTitle()
+        configureBarButton()
+        configureDatePicker()
         showPlaceholder()
         configureCollectionView()
         registerCellAndSupplementaryView()
@@ -67,25 +74,25 @@ final class TrackersViewController: UIViewController {
         }
     }
     
-    private func addNavigationTitle() {
+    private func configureNavigationTitle() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         title = "Трекеры"
     }
     
-    private func addButton() {
+    private func configureBarButton() {
         let barButton = UIBarButtonItem(
             image: UIImage(systemName: "plus"),
             style: .plain,
             target: self,
-            action: #selector(buttonTapped))
+            action: #selector(barButtonTapped))
         
         barButton.tintColor = UIColor(named: "YP_Black")
         
         navigationItem.leftBarButtonItem = barButton
     }
     
-    private func addDatePicker() {
+    private func configureDatePicker() {
         datePicker.addTarget(self, action: #selector(datePickerChanged), for: .valueChanged)
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
@@ -99,7 +106,7 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
     }
     
-    @objc private func buttonTapped() {
+    @objc private func barButtonTapped() {
         let trackerCreationViewController = TrackerCreationViewController()
         trackerCreationViewController.delegate = self
         trackerCreationViewController.modalPresentationStyle = .pageSheet
@@ -153,17 +160,17 @@ final class TrackersViewController: UIViewController {
     }
     
     private func contextualMenuEditTabTapped(for tracker: Tracker, in category: TrackerCategory) {
-        let cellType = tracker.schedule.count > 1 ? "newHabitCell" : "newIrregularEventCell"
-        
-        let trackerEditViewController = TrackerEditViewController(cellType: cellType,
-                                                                  trackerName: tracker.name,
-                                                                  trackerCategory: category.title,
-                                                                  trackerSchedule: tracker.schedule,
-                                                                  trackerEmoji: tracker.emoji,
-                                                                  trackerColor: tracker.color,
-                                                                  trackerEditViewControllerDelegate: self)
-        trackerEditViewController.modalPresentationStyle = .pageSheet
-        present(trackerEditViewController, animated: true)
+//        let cellType = tracker.schedule.count > 1 ? "newHabitCell" : "newIrregularEventCell"
+//        
+//        let trackerEditViewController = TrackerEditViewController(cellType: cellType,
+//                                                                  trackerName: tracker.name,
+//                                                                  trackerCategory: category.title,
+//                                                                  trackerSchedule: tracker.schedule,
+//                                                                  trackerEmoji: tracker.emoji,
+//                                                                  trackerColor: tracker.color,
+//                                                                  trackerEditViewControllerDelegate: self)
+//        trackerEditViewController.modalPresentationStyle = .pageSheet
+//        present(trackerEditViewController, animated: true)
         
     }
 }
@@ -339,22 +346,9 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension TrackersViewController: NewTrackerViewControllerDelegate {
-    func updateCollectionViewSection(newCategories: [TrackerCategory], section: Int, pickedWeekdays: [String]) {
-        self.categories = newCategories
-        if self.collectionView.numberOfSections != 0 && (pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(currentDate)) {
-            self.collectionView.reloadSections(IndexSet(integer: section))
-        } else if pickedWeekdays.contains(String(self.pickedWeekday)) || pickedWeekdays.contains(currentDate) {
-            self.collectionView.insertSections(IndexSet(integer: section))
-        }
-    }
-    
     func updateCollectionView() {
         categories = dataProvider.trackerCategories
         collectionView.reloadData()
-    }
-    
-    func getCategories() -> [TrackerCategory] {
-        return self.categories
     }
     
     func dismiss() {
@@ -404,6 +398,6 @@ extension TrackersViewController: DataProviderDelegate {
     }
 }
 
-extension TrackersViewController: TrackerEditViewControllerDelegate {
-    
-}
+//extension TrackersViewController: TrackerEditViewControllerDelegate {
+//    
+//}

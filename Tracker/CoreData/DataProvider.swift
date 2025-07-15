@@ -65,8 +65,8 @@ final class DataProvider: NSObject {
         fetchedResultsController.sections?.count ?? 0
     }
     
-    private init(delegate: DataProviderDelegate? = nil) {
-        self.delegate = delegate
+    private override init() {
+        super.init()
     }
 
     func numberOfRowsInSection(_ section: Int) -> Int {

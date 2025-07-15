@@ -73,14 +73,14 @@ final class TrackerCreationViewController: UIViewController {
     }
     
     @objc private func habitButtonTapped() {
-        let newHabitViewController = NewHabitViewController(cellType: "newHabitCell", newHabitViewControllerDelegate: delegate)
-        newHabitViewController.modalPresentationStyle = .pageSheet
-        present(newHabitViewController, animated: true)
+        let newTrackerViewController = NewTrackerViewController(cellType: "newHabitCell", newTrackerViewControllerDelegate: delegate)
+        newTrackerViewController.modalPresentationStyle = .pageSheet
+        present(newTrackerViewController, animated: true)
     }
     
     @objc private func irregularEventButtonTapped() {
-        let newIrregularEventViewController = NewIrregularEventViewController(cellType: "newIrregularEventCell", newHabitViewControllerDelegate: delegate)
-        newIrregularEventViewController.modalPresentationStyle = .pageSheet
-        present(newIrregularEventViewController, animated: true)
+        let newTrackerViewController = NewTrackerViewController(cellType: "newIrregularEventCell", newTrackerViewControllerDelegate: delegate)
+        newTrackerViewController.modalPresentationStyle = .pageSheet
+        present(newTrackerViewController, animated: true)
     }
 }
