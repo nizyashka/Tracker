@@ -28,10 +28,15 @@ final class TrackerCategoriesStore {
         return categories
     }
     
-    func getCategoryByIndex(index: Int) -> TrackerCategoriesCoreData {
+    func getCategory(by title: String) -> TrackerCategoriesCoreData? {
         let categories = getCategories()
         
-        return categories[index]
+        guard let category = categories.first(where: { $0.title == title }) else {
+            print("[TrackerCategoriesStore] - getCategory: No category with such title.")
+            return nil
+        }
+        
+        return category
     }
     
     func addNewCategory(title: String) -> TrackerCategoriesCoreData? {

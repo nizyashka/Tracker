@@ -9,7 +9,7 @@ import UIKit
 
 final class CategoriesViewController: UIViewController {
     let viewTitleLabel = UILabel()
-    let addCategoryButton = UIButton()
+    let newCategoryButton = UIButton()
     let categoriesTableView = UITableView()
     
     let viewModel: CategoriesViewModel?
@@ -29,13 +29,12 @@ final class CategoriesViewController: UIViewController {
         view.backgroundColor = .white
         
         bind()
-        addViewTitleLabel()
-        configureAddCategoryButton()
+        configureViewTitleLabel()
+        configureNewCategoryButton()
         configureCategoriesTableView()
-        addCategoryButtonTapped()
     }
     
-    private func addViewTitleLabel() {
+    private func configureViewTitleLabel() {
         viewTitleLabel.text = "Категория"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -48,28 +47,28 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
-    private func configureAddCategoryButton() {
-        addCategoryButton.setTitle("Добавить категорию", for: .normal)
-        addCategoryButton.backgroundColor = .ypBlack
-        addCategoryButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        addCategoryButton.layer.cornerRadius = 16
-        addCategoryButton.layer.masksToBounds = true
-        addCategoryButton.addTarget(self, action: #selector(addCategoryButtonTapped), for: .touchUpInside)
-        addCategoryButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(addCategoryButton)
+    private func configureNewCategoryButton() {
+        newCategoryButton.setTitle("Добавить категорию", for: .normal)
+        newCategoryButton.backgroundColor = .ypBlack
+        newCategoryButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        newCategoryButton.layer.cornerRadius = 16
+        newCategoryButton.layer.masksToBounds = true
+        newCategoryButton.addTarget(self, action: #selector(newCategoryButtonTapped), for: .touchUpInside)
+        newCategoryButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(newCategoryButton)
         
         NSLayoutConstraint.activate([
-            addCategoryButton.heightAnchor.constraint(equalToConstant: 60),
-            addCategoryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            addCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-            addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            addCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            newCategoryButton.heightAnchor.constraint(equalToConstant: 60),
+            newCategoryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            newCategoryButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
+            newCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            newCategoryButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
     
-    @objc private func addCategoryButtonTapped() {
+    @objc private func newCategoryButtonTapped() {
         guard let viewModel = viewModel else {
-            print("[CategoriesViewController] - addCategoryButtonTapped: No viewModel found.")
+            print("[CategoriesViewController] - newCategoryButtonTapped: No viewModel found.")
             return
         }
         
@@ -92,7 +91,7 @@ final class CategoriesViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             categoriesTableView.topAnchor.constraint(equalTo: viewTitleLabel.bottomAnchor, constant: 24),
-            categoriesTableView.bottomAnchor.constraint(equalTo: addCategoryButton.topAnchor, constant: -16),
+            categoriesTableView.bottomAnchor.constraint(equalTo: newCategoryButton.topAnchor, constant: -16),
             categoriesTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             categoriesTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
