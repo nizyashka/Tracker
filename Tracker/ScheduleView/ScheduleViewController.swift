@@ -115,6 +115,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         
         cell.delegate = self
         cell.dayLabel.text = weekdays[indexPath.row]
+        cell.switcher.isOn = pickedWeekdays[indexPath.row] > 0 ? true : false
         
         return cell
     }

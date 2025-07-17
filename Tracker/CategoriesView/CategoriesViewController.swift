@@ -34,6 +34,12 @@ final class CategoriesViewController: UIViewController {
         configureCategoriesTableView()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        viewModel?.selectCategory(tableView: categoriesTableView)
+    }
+    
     private func configureViewTitleLabel() {
         viewTitleLabel.text = "Категория"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -100,6 +106,10 @@ final class CategoriesViewController: UIViewController {
     private func bind() {
         viewModel?.categoryAdded = { [weak self] in
             self?.insertNewCategory()
+        }
+        
+        viewModel?.tableView = { [weak self] tableView, indexPath in
+            self?.tableView(tableView, didSelectRowAt: indexPath)
         }
     }
     

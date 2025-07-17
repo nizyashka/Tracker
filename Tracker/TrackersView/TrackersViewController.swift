@@ -160,18 +160,31 @@ final class TrackersViewController: UIViewController {
     }
     
     private func contextualMenuEditTabTapped(for tracker: Tracker, in category: TrackerCategory) {
-//        let cellType = tracker.schedule.count > 1 ? "newHabitCell" : "newIrregularEventCell"
-//        
-//        let trackerEditViewController = TrackerEditViewController(cellType: cellType,
-//                                                                  trackerName: tracker.name,
-//                                                                  trackerCategory: category.title,
-//                                                                  trackerSchedule: tracker.schedule,
-//                                                                  trackerEmoji: tracker.emoji,
-//                                                                  trackerColor: tracker.color,
-//                                                                  trackerEditViewControllerDelegate: self)
-//        trackerEditViewController.modalPresentationStyle = .pageSheet
-//        present(trackerEditViewController, animated: true)
+        let cellType = tracker.schedule.count > 1 ? "habitCell" : "irregularEventCell"
+        let daysCount = completedTrackers.count(where: { $0.completedTrackerID == tracker.id })
         
+        let trackerEditViewController = TrackerEditViewController(cellType: cellType)
+        trackerEditViewController.modalPresentationStyle = .pageSheet
+        trackerEditViewController.setProperties(trackerID: tracker.id,
+                                                trackerName: tracker.name,
+                                                trackerCategory: category.title,
+                                                schedule: tracker.schedule,
+                                                emoji: tracker.emoji,
+                                                color: tracker.color,
+                                                daysCount: daysCount)
+        present(trackerEditViewController, animated: true)
+    }
+    
+    private func contextualMenuDeleteTabTapped(for tracker: Tracker) {
+        let actionSheet = UIAlertController(title: nil, message: "Уверены, что хотите удалить трекер?", preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Отменить", style: .cancel, handler: nil))
+        
+        actionSheet.addAction(UIAlertAction(title: "Удалить", style: .destructive, handler: { _ in
+            self.dataProvider.trackerCategoriesStore.delete(tracker: tracker)
+            self.updateCollectionView()
+        }))
+        
+        self.present(actionSheet, animated: true)
     }
 }
 
@@ -298,7 +311,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         return UIContextMenuConfiguration(actionProvider: { actions in
             return UIMenu(children: [
                 UIAction(title: "Редактировать") { [weak self] _ in self?.contextualMenuEditTabTapped(for: tracker, in: category) },
-                UIAction(title: "Удалить", attributes: .destructive) { _ in}
+                UIAction(title: "Удалить", attributes: .destructive) { [weak self] _ in self?.contextualMenuDeleteTabTapped(for: tracker) }
             ])
         })
     }
@@ -393,11 +406,6 @@ extension TrackersViewController: TrackerCellDelegate {
 extension TrackersViewController: DataProviderDelegate {
     func updateEverything(index: IndexPath) {
         categories = dataProvider.trackerCategories
-        
         collectionView.reloadData()
     }
 }
-
-//extension TrackersViewController: TrackerEditViewControllerDelegate {
-//    
-//}

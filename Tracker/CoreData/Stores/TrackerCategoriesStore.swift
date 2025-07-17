@@ -52,4 +52,25 @@ final class TrackerCategoriesStore {
         }
     }
     
+    func delete(tracker: Tracker) {
+        guard let trackers = DataProvider.shared.fetchTrackers(),
+        let tracker = trackers.first(where: { $0.id == tracker.id }) else {
+            print("[TrackerCategoryStore] - delete: Error fetching trackers or categories.")
+            return
+        }
+        
+        if let records = tracker.record as? Set<TrackerRecordsCoreData> {
+            for record in records {
+                context.delete(record)
+            }
+        }
+        
+        context.delete(tracker)
+        
+        do {
+            try CoreDataStack.shared.saveContext()
+        } catch {
+            print("[TrackerCategoryStore] - delete: Error saving context.")
+        }
+    }
 }

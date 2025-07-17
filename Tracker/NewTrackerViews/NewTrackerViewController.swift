@@ -16,37 +16,39 @@ protocol CategoriesViewModelDelegate: AnyObject {
 }
 
 class NewTrackerViewController: UIViewController {
-    private var cellType: String
+    var cellType: String
     
     private let scrollView = UIScrollView()
-    private let viewTitleLabel = UILabel()
-    private let trackerNameTextField = PaddedTextField()
+    let viewTitleLabel = UILabel()
+    let trackerNameTextField = PaddedTextField()
     private let navigationalTableView = UITableView()
     private let emojiHeaderLabel = UILabel()
-    private let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let emojiCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let colorHeaderLabel = UILabel()
-    private let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let colorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let cancelButton = UIButton()
-    private let createButton = UIButton()
+    let createButton = UIButton()
     private let cancelCreateButtonsStackView = UIStackView()
     
     private let tableViewOptions = ["Категория", "Расписание"]
-    private var trackerCategory: String?
-    private var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
-    private var pickedEmoji: String?
-    private var pickedColor: String?
+    var trackerCategory: String?
+    var scheduledWeekdays = ["2", "3", "4", "5", "6", "7", "1"]
+    var pickedEmoji: String?
+    var pickedColor: String?
    
-    private let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
+    let emoji = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                         "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                         "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
    
-    private let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
+    let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
     
     //    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
     
     weak var newTrackerViewControllerDelegate: NewTrackerViewControllerDelegate?
     
-    private let dataProvider = DataProvider.shared
+    let dataProvider = DataProvider.shared
+    
+    var trackerNameTextFieldConstraint: NSLayoutConstraint!
     
     init(cellType: String, newTrackerViewControllerDelegate: NewTrackerViewControllerDelegate? = nil) {
         self.cellType = cellType
@@ -93,7 +95,7 @@ class NewTrackerViewController: UIViewController {
     }
     
     private func configureViewTitleLabel() {
-        viewTitleLabel.text = cellType == "newHabitCell" ? "Новая привычка" : "Новое нерегулярное событие"
+        viewTitleLabel.text = cellType == "habitCell" ? "Новая привычка" : "Новое нерегулярное событие"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(viewTitleLabel)
@@ -124,9 +126,11 @@ class NewTrackerViewController: UIViewController {
         trackerNameTextField.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(trackerNameTextField)
         
+        trackerNameTextFieldConstraint = trackerNameTextField.topAnchor.constraint(equalTo: viewTitleLabel.bottomAnchor, constant: 38)
+        trackerNameTextFieldConstraint.isActive = true
+        
         NSLayoutConstraint.activate([
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
-            trackerNameTextField.topAnchor.constraint(equalTo: viewTitleLabel.bottomAnchor, constant: 38),
             trackerNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             trackerNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
@@ -150,9 +154,9 @@ class NewTrackerViewController: UIViewController {
             navigationalTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
         ])
         
-        if cellType == "newHabitCell" {
+        if cellType == "habitCell" {
             navigationalTableView.bottomAnchor.constraint(equalTo: navigationalTableView.topAnchor, constant: 150).isActive = true
-        } else if cellType == "newIrregularEventCell" {
+        } else if cellType == "irregularEventCell" {
             navigationalTableView.bottomAnchor.constraint(equalTo: navigationalTableView.topAnchor, constant: 75).isActive = true
         }
     }
@@ -257,11 +261,11 @@ class NewTrackerViewController: UIViewController {
     
     //MARK: - UI Components Actions
     
-    @objc private func cancelButtonTapped() {
+    @objc func cancelButtonTapped() {
         newTrackerViewControllerDelegate?.dismiss()
     }
     
-    @objc private func createButtonTapped() {
+    @objc func createButtonTapped() {
         guard let trackerName = trackerNameTextField.text else {
             print("[NewTrackerViewCell] - createButtonTapped: Unable to get text from trackerNameTextField.")
             return
@@ -282,7 +286,7 @@ class NewTrackerViewController: UIViewController {
             return
         }
         
-        let schedule = cellType == "newHabitCell" ? scheduledWeekdays : [DateFormatter.trackerDateFormatter.string(from: Date())]
+        let schedule = cellType == "habitCell" ? scheduledWeekdays : [DateFormatter.trackerDateFormatter.string(from: Date())]
         
         addNewTrackerToCoreData(trackerName: trackerName, trackerCategory: trackerCategory, trackerEmoji: pickedEmoji, trackerColor: pickedColor, scheduledWeekdays: schedule)
     }
@@ -347,7 +351,7 @@ extension NewTrackerViewController: UITextFieldDelegate {
 
 extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let numberOfRowsInSection = cellType == "newHabitCell" ? 2 : 1
+        let numberOfRowsInSection = cellType == "habitCell" ? 2 : 1
         
         return numberOfRowsInSection
     }
@@ -370,11 +374,15 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableViewOptions[indexPath.row] == "Категория" {
             let viewModel = CategoriesViewModel(delegate: self)
+            viewModel.selectedCategory = trackerCategory
             let categoriesViewController = CategoriesViewController(viewModel: viewModel)
             present(categoriesViewController, animated: true)
         } else if tableViewOptions[indexPath.row] == "Расписание" {
             let scheduleViewController = ScheduleViewController()
             scheduleViewController.scheduleViewControllerDelegate = self
+            if scheduledWeekdays != ["2", "3", "4", "5", "6", "7", "1"] {
+                scheduleViewController.pickedWeekdays = scheduledWeekdays.map( { Int($0)! } )
+            }
             present(scheduleViewController, animated: true)
         }
         

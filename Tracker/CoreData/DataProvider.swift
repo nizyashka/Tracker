@@ -36,7 +36,7 @@ final class DataProvider: NSObject {
         return trackerRecords
     }
     
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoriesCoreData> = {
+    lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoriesCoreData> = {
         let fetchRequest = TrackerCategoriesCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerCategoriesCoreData.title, ascending: true)
@@ -59,6 +59,13 @@ final class DataProvider: NSObject {
         let trackerRecords = try? context.fetch(request)
         
         return trackerRecords
+    }
+    
+    func fetchTrackers() -> [TrackersCoreData]? {
+        let request = NSFetchRequest<TrackersCoreData>(entityName: "TrackersCoreData")
+        let trackers = try? context.fetch(request)
+        
+        return trackers
     }
     
     var numberOfSections: Int {
