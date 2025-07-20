@@ -20,20 +20,25 @@ protocol TrackerCellDelegate: AnyObject {
     func updateCollectionViewCell(for indexPath: IndexPath)
 }
 
+protocol FiltersViewControllerDelegate: AnyObject {
+    func updateCollectionViewWithoutChanges()
+}
+
 final class TrackersViewController: UIViewController {
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     let noTrackersPlaceholderImageView = UIImageView()
     let noTrackersPlaceholderLabel = UILabel()
     let datePicker = UIDatePicker()
+    let filtersButton = UIButton()
     
     let dataProvider = DataProvider.shared
     
     var categories: [TrackerCategory] = []
-    var filteredTrackers: [Tracker] = []
     var filteredCategories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
     var currentDate: String = ""
     var pickedWeekday: String = ""
+    let filters = ["Все трекеры", "Трекеры на сегодня", "Завершенные", "Не завершенные"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -64,6 +69,7 @@ final class TrackersViewController: UIViewController {
         showPlaceholder()
         configureCollectionView()
         registerCellAndSupplementaryView()
+        configureFiltersButton()
     }
     
     private func showOnboarding() {
@@ -100,7 +106,27 @@ final class TrackersViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
+    private func configureFiltersButton() {
+        filtersButton.setTitle("Фильтры", for: .normal)
+        filtersButton.backgroundColor = .ypBlueSwitch
+        filtersButton.layer.cornerRadius = 16
+        filtersButton.layer.masksToBounds = true
+        filtersButton.addTarget(self, action: #selector(filtersButtonTapped), for: .touchUpInside)
+        filtersButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filtersButton)
+        
+        NSLayoutConstraint.activate([
+            filtersButton.heightAnchor.constraint(equalToConstant: 50),
+            filtersButton.widthAnchor.constraint(equalToConstant: 114),
+            filtersButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -100),
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+    
     @objc private func datePickerChanged() {
+        if UserDefaults.standard.integer(forKey: "selectedFilter") == 1 {
+            UserDefaults.standard.set(0, forKey: "selectedFilter")
+        }
         currentDate = DateFormatter.trackerDateFormatter.string(from: datePicker.date)
         pickedWeekday = String(Calendar.current.component(.weekday, from: datePicker.date))
         collectionView.reloadData()
@@ -113,10 +139,18 @@ final class TrackersViewController: UIViewController {
         present(trackerCreationViewController, animated: true)
     }
     
+    @objc private func filtersButtonTapped() {
+        let filtersViewController = FiltersViewController()
+        filtersViewController.filtersViewControllerDelegate = self
+        filtersViewController.modalPresentationStyle = .pageSheet
+        present(filtersViewController, animated: true)
+    }
+    
     private func configureCollectionView() {
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 65, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         
@@ -186,62 +220,91 @@ final class TrackersViewController: UIViewController {
         
         self.present(actionSheet, animated: true)
     }
+    
+    private func filterTrackers(in category: TrackerCategory, by filter: String) -> [Tracker] {
+        print("Фильтр: \(filter)")
+        var scheduledHabitTrackersInCategory: [Tracker]
+        var scheduledIrregularEventTrackersInCategory: [Tracker]
+        var scheduledTrackersInCategory: [Tracker] = []
+        
+        guard let currentDateTemp = getDatePickerDate() else {
+            print("[TrackersViewController]: filterTrackers - Unable to get a date.")
+            return scheduledTrackersInCategory
+        }
+        
+        if filter == "Завершенные" {
+            scheduledHabitTrackersInCategory = category.trackers.filter({ tracker in
+                tracker.schedule.contains(pickedWeekday) &&
+                completedTrackers.contains(where: { $0.completedTrackerID == tracker.id &&
+                    $0.completedTrackerDate == currentDateTemp }) })
+            
+            scheduledIrregularEventTrackersInCategory = category.trackers.filter({ tracker in
+                tracker.schedule.contains(currentDate) &&
+                completedTrackers.contains(where: { $0.completedTrackerID == tracker.id }) })
+        } else if filter == "Не завершенные" {
+            scheduledHabitTrackersInCategory = category.trackers.filter({ tracker in
+                tracker.schedule.contains(pickedWeekday) &&
+                !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id &&
+                    $0.completedTrackerDate == currentDateTemp }) })
+            
+            scheduledIrregularEventTrackersInCategory = category.trackers.filter({ tracker in
+                (tracker.schedule.contains(currentDate) ||
+                (tracker.schedule.count == 1 &&
+                 DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp)) && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } ) } )
+        } else {
+            if filter == "Трекеры на сегодня" {
+                datePicker.setDate(Date(), animated: false)
+                datePickerChanged()
+            }
+            
+            scheduledHabitTrackersInCategory = category.trackers.filter( { $0.schedule.contains(pickedWeekday) } )
+            
+            scheduledIrregularEventTrackersInCategory = category.trackers.filter({ tracker in
+                tracker.schedule.contains(currentDate) ||
+                (tracker.schedule.count == 1 &&
+                 DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp &&
+                 !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id })) })
+        }
+        
+        scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
+        
+        return scheduledTrackersInCategory
+    }
 }
 
 extension TrackersViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        var numberOfSections = 0
+        print(categories)
+        
+        showPlaceholder()
         filteredCategories = []
+        var trackersInTotal = 0
+        let selectedFilter = filters[UserDefaults.standard.integer(forKey: "selectedFilter")]
         
         for category in categories {
-            let scheduledHabitTrackersInCategory = category.trackers.filter( { $0.schedule.contains(pickedWeekday) } ).count
+            trackersInTotal += category.trackers.count > 0 ? 1 : 0
             
-            guard let currentDateTemp = getDatePickerDate() else {
-                print("[TrackersViewController]: numberOfSections - Unable to get a date.")
-                return 0
-            }
+            let scheduledTrackersInCategory = filterTrackers(in: category, by: selectedFilter)
             
-            let scheduledIrregularEventTrackersInCategory = category.trackers.filter({ tracker in
-                tracker.schedule.contains(currentDate) ||
-                (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count //
-            
-            let scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
-            
-            if scheduledTrackersInCategory > 0 {
-                filteredTrackers = category.trackers.filter( { $0.schedule.contains(pickedWeekday) } )
-                filteredTrackers += category.trackers.filter({ tracker in
-                    tracker.schedule.contains(currentDate) ||
-                    (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } )
-                filteredCategories += [TrackerCategory(title: category.title, trackers: filteredTrackers)]
-                numberOfSections += 1
+            if scheduledTrackersInCategory.count > 0 {
+                filteredCategories += [TrackerCategory(title: category.title, trackers: scheduledTrackersInCategory)]
+                removePlaceholder()
             }
         }
         
+        filtersButton.isHidden = trackersInTotal == 0 ? true : false
         
-        if numberOfSections == 0 {
-            showPlaceholder()
-        } else {
-            removePlaceholder()
-        }
+        print("Категории: \(filteredCategories.count)")
         
-        return numberOfSections
+        return filteredCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let currentCategory = filteredCategories[section]
+        let selectedFilter = filters[UserDefaults.standard.integer(forKey: "selectedFilter")]
         
-        let scheduledHabitTrackersInCategory = currentCategory.trackers.filter( { $0.schedule.contains(pickedWeekday) } ).count
+        let scheduledTrackersInCategory = filterTrackers(in: filteredCategories[section], by: selectedFilter).count
         
-        guard let currentDateTemp = getDatePickerDate() else {
-            print("[TrackersViewController]: collectionView - Unable to get a date.")
-            return 0
-        }
-        
-        let scheduledIrregularEventTrackersInCategory = currentCategory.trackers.filter({ tracker in
-            tracker.schedule.contains(currentDate) ||
-            (tracker.schedule.count == 1 && DateFormatter.trackerDateFormatter.date(from: tracker.schedule.first ?? "") ?? Date.distantFuture < currentDateTemp && !completedTrackers.contains(where: { $0.completedTrackerID == tracker.id } )) } ).count
-        
-        let scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
+        print("Трекеров в категории: \(scheduledTrackersInCategory) in \(filteredCategories[section].title)")
         
         return scheduledTrackersInCategory
     }
@@ -372,10 +435,12 @@ extension TrackersViewController: NewTrackerViewControllerDelegate {
 extension TrackersViewController: TrackerCellDelegate {
     func trackerCompleted() {
         completedTrackers = dataProvider.trackerRecords
+        collectionView.reloadData()
     }
     
     func trackerFailed() {
         completedTrackers = dataProvider.trackerRecords
+        collectionView.reloadData()
     }
     
     func getCurrentDate() -> Date? {
@@ -406,6 +471,12 @@ extension TrackersViewController: TrackerCellDelegate {
 extension TrackersViewController: DataProviderDelegate {
     func updateEverything(index: IndexPath) {
         categories = dataProvider.trackerCategories
+        collectionView.reloadData()
+    }
+}
+
+extension TrackersViewController: FiltersViewControllerDelegate {
+    func updateCollectionViewWithoutChanges() {
         collectionView.reloadData()
     }
 }
