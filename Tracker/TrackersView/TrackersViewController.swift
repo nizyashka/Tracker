@@ -61,7 +61,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypBackground
         
         configureNavigationTitle()
         configureBarButton()
@@ -93,7 +93,14 @@ final class TrackersViewController: UIViewController {
             target: self,
             action: #selector(barButtonTapped))
         
-        barButton.tintColor = UIColor(named: "YP_Black")
+        barButton.tintColor = UIColor { traitCollection in
+            switch traitCollection.userInterfaceStyle {
+            case .dark:
+                return .white
+            default:
+                return .ypBlack
+            }
+        }
         
         navigationItem.leftBarButtonItem = barButton
     }
@@ -150,6 +157,7 @@ final class TrackersViewController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         
+        collectionView.backgroundColor = .ypBackground
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 65, right: 0)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)

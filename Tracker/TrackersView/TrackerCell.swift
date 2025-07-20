@@ -14,6 +14,7 @@ final class TrackerCell: UICollectionViewCell {
     let trackerEmojiSticker = UILabel()
     let trackerDayCounterLabel = UILabel()
     let trackerCompleteButton = UIButton()
+    let plusImage = UIImage(systemName: "plus")?.withTintColor(.ypBackground)
     
     let dataProvider = DataProvider.shared
     
@@ -102,7 +103,7 @@ final class TrackerCell: UICollectionViewCell {
         trackerCompleteButton.layer.cornerRadius = 17
         trackerCompleteButton.clipsToBounds = true
         trackerCompleteButton.backgroundColor = .ypGreen
-        trackerCompleteButton.tintColor = .white
+        trackerCompleteButton.tintColor = .ypBackground
         trackerCompleteButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(trackerCompleteButton)
         
