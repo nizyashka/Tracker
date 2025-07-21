@@ -19,12 +19,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let firstNavigationController = UINavigationController(rootViewController: TrackersViewController())
+        let statisticsViewController = StatisticsViewController()
+        let trackersViewController = TrackersViewController()
+        trackersViewController.statisticsViewControllerDelegate = statisticsViewController
+        
+        let firstNavigationController = UINavigationController(rootViewController: trackersViewController)
         firstNavigationController.navigationBar.backgroundColor = .ypBackground
         firstNavigationController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TrackersTabBarImage"), tag: 0)
         
-        let secondNavigationController = UINavigationController(rootViewController: StatisticsViewController())
-        secondNavigationController.navigationBar.backgroundColor = .white
+        let secondNavigationController = UINavigationController(rootViewController: statisticsViewController)
+        secondNavigationController.navigationBar.backgroundColor = .ypBackground
         secondNavigationController.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "StatisticsTabBarImage"), tag: 1)
         
         let tabBarController = UITabBarController()

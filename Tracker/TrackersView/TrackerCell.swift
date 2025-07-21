@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AppMetricaCore
 
 final class TrackerCell: UICollectionViewCell {
     let trackerCard = UIView()
@@ -117,6 +118,11 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     @objc private func trackerCompleteButtonTapped() {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "track"]
+        AppMetrica.reportEvent(name: "track", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         guard let currentDate = trackerCellDelegate?.getCurrentDate(),
               let datePickerDate = trackerCellDelegate?.getDatePickerDate(),
               let indexPath,

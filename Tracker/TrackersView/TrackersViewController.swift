@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AppMetricaCore
 
 protocol NewTrackerViewControllerDelegate: AnyObject {
     func updateCollectionView()
@@ -30,8 +31,11 @@ final class TrackersViewController: UIViewController {
     let noTrackersPlaceholderLabel = UILabel()
     let datePicker = UIDatePicker()
     let filtersButton = UIButton()
+    let searchTextField = UISearchTextField()
     
     let dataProvider = DataProvider.shared
+    
+    weak var statisticsViewControllerDelegate: StatisticsViewControllerDelegate?
     
     var categories: [TrackerCategory] = []
     var filteredCategories: [TrackerCategory] = []
@@ -57,7 +61,21 @@ final class TrackersViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        let params : [AnyHashable : Any] = ["event": "open", "screen": "Main"]
+        AppMetrica.reportEvent(name: "open", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         showOnboarding()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        let params : [AnyHashable : Any] = ["event": "close", "screen": "Main"]
+        AppMetrica.reportEvent(name: "close", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
     }
     
     private func setupUI() {
@@ -66,7 +84,8 @@ final class TrackersViewController: UIViewController {
         configureNavigationTitle()
         configureBarButton()
         configureDatePicker()
-        showPlaceholder()
+        configureSearchTextField()
+        configurePlaceholder()
         configureCollectionView()
         registerCellAndSupplementaryView()
         configureFiltersButton()
@@ -113,6 +132,19 @@ final class TrackersViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
     }
     
+    private func configureSearchTextField() {
+        searchTextField.placeholder = "Поиск"
+        searchTextField.addTarget(self, action: #selector(searchTextDidChange), for: .editingChanged)
+        searchTextField.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(searchTextField)
+        
+        NSLayoutConstraint.activate([
+            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
+        ])
+    }
+    
     private func configureFiltersButton() {
         filtersButton.setTitle("Фильтры", for: .normal)
         filtersButton.backgroundColor = .ypBlueSwitch
@@ -140,6 +172,11 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func barButtonTapped() {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "add_track"]
+        AppMetrica.reportEvent(name: "add_track", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         let trackerCreationViewController = TrackerCreationViewController()
         trackerCreationViewController.delegate = self
         trackerCreationViewController.modalPresentationStyle = .pageSheet
@@ -147,10 +184,19 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func filtersButtonTapped() {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "filter"]
+        AppMetrica.reportEvent(name: "filter", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         let filtersViewController = FiltersViewController()
         filtersViewController.filtersViewControllerDelegate = self
         filtersViewController.modalPresentationStyle = .pageSheet
         present(filtersViewController, animated: true)
+    }
+    
+    @objc private func searchTextDidChange(_ searchTextField: UISearchTextField) {
+       collectionView.reloadData()
     }
     
     private func configureCollectionView() {
@@ -163,7 +209,7 @@ final class TrackersViewController: UIViewController {
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchTextField.bottomAnchor, constant: 24),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -175,7 +221,7 @@ final class TrackersViewController: UIViewController {
         collectionView.register(CategoryHeaderSupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
     }
     
-    private func showPlaceholder() {
+    private func configurePlaceholder() {
         noTrackersPlaceholderImageView.image = UIImage(named: "NoTrackersPlaceholder")
         noTrackersPlaceholderImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(noTrackersPlaceholderImageView)
@@ -202,6 +248,11 @@ final class TrackersViewController: UIViewController {
     }
     
     private func contextualMenuEditTabTapped(for tracker: Tracker, in category: TrackerCategory) {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "edit"]
+        AppMetrica.reportEvent(name: "edit", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         let cellType = tracker.schedule.count > 1 ? "habitCell" : "irregularEventCell"
         let daysCount = completedTrackers.count(where: { $0.completedTrackerID == tracker.id })
         
@@ -218,12 +269,18 @@ final class TrackersViewController: UIViewController {
     }
     
     private func contextualMenuDeleteTabTapped(for tracker: Tracker) {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "delete"]
+        AppMetrica.reportEvent(name: "delete", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         let actionSheet = UIAlertController(title: nil, message: "Уверены, что хотите удалить трекер?", preferredStyle: .actionSheet)
         actionSheet.addAction(UIAlertAction(title: "Отменить", style: .cancel, handler: nil))
         
         actionSheet.addAction(UIAlertAction(title: "Удалить", style: .destructive, handler: { _ in
             self.dataProvider.trackerCategoriesStore.delete(tracker: tracker)
             self.updateCollectionView()
+            self.statisticsViewControllerDelegate?.updateCompletedTrackersCountLabel()
         }))
         
         self.present(actionSheet, animated: true)
@@ -276,6 +333,10 @@ final class TrackersViewController: UIViewController {
         
         scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
         
+        if let searchText = searchTextField.text, !searchText.isEmpty {
+            scheduledTrackersInCategory = scheduledTrackersInCategory.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+        }
+        
         return scheduledTrackersInCategory
     }
 }
@@ -284,7 +345,7 @@ extension TrackersViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         print(categories)
         
-        showPlaceholder()
+        configurePlaceholder()
         filteredCategories = []
         var trackersInTotal = 0
         let selectedFilter = filters[UserDefaults.standard.integer(forKey: "selectedFilter")]
@@ -444,11 +505,13 @@ extension TrackersViewController: TrackerCellDelegate {
     func trackerCompleted() {
         completedTrackers = dataProvider.trackerRecords
         collectionView.reloadData()
+        statisticsViewControllerDelegate?.updateCompletedTrackersCountLabel()
     }
     
     func trackerFailed() {
         completedTrackers = dataProvider.trackerRecords
         collectionView.reloadData()
+        statisticsViewControllerDelegate?.updateCompletedTrackersCountLabel()
     }
     
     func getCurrentDate() -> Date? {
