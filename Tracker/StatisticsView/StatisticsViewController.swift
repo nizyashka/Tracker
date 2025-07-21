@@ -50,7 +50,7 @@ final class StatisticsViewController: UIViewController {
     private func addNavigationTitle() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
-        title = "Статистика"
+        title = NSLocalizedString("statistics", comment: "Navigational title")
     }
     
     private func configurePlaceholder() {

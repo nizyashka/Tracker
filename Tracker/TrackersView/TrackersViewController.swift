@@ -102,7 +102,7 @@ final class TrackersViewController: UIViewController {
     private func configureNavigationTitle() {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
-        title = "Трекеры"
+        title = NSLocalizedString("trackers", comment: "Navigational title")
     }
     
     private func configureBarButton() {
@@ -133,7 +133,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func configureSearchTextField() {
-        searchTextField.placeholder = "Поиск"
+        searchTextField.placeholder = NSLocalizedString("search", comment: "searchTextField placeholder")
         searchTextField.addTarget(self, action: #selector(searchTextDidChange), for: .editingChanged)
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchTextField)
@@ -146,7 +146,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func configureFiltersButton() {
-        filtersButton.setTitle("Фильтры", for: .normal)
+        filtersButton.setTitle(NSLocalizedString("filters", comment: "Filters button"), for: .normal)
         filtersButton.backgroundColor = .ypBlueSwitch
         filtersButton.layer.cornerRadius = 16
         filtersButton.layer.masksToBounds = true
@@ -409,13 +409,9 @@ extension TrackersViewController: UICollectionViewDataSource {
         
         let dayCounter: Int = completedTrackers.filter( { id == $0.completedTrackerID } ).count
         
-        if [0, 5, 6, 7, 8, 9].contains(dayCounter % 10) || [11, 12, 13, 14].contains(dayCounter % 100) {
-            cell.trackerDayCounterLabel.text = "\(dayCounter) дней"
-        } else if [2, 3, 4].contains(dayCounter % 10) {
-            cell.trackerDayCounterLabel.text = "\(dayCounter) дня"
-        } else if dayCounter % 10 == 1 {
-            cell.trackerDayCounterLabel.text = "\(dayCounter) день"
-        }
+        cell.trackerDayCounterLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Times tracker completed"),
+            dayCounter)
         
         return cell
     }
