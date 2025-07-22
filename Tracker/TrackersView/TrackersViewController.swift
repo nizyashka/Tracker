@@ -242,6 +242,11 @@ final class TrackersViewController: UIViewController {
         ])
     }
     
+    private func configureFilteredPlaceholder() {
+        noTrackersPlaceholderImageView.image = UIImage(named: "NoFilteredTrackersPlaceholder")
+        noTrackersPlaceholderLabel.text = "Ничего не найдено."
+    }
+    
     private func removePlaceholder() {
         noTrackersPlaceholderImageView.removeFromSuperview()
         noTrackersPlaceholderLabel.removeFromSuperview()
@@ -333,8 +338,9 @@ final class TrackersViewController: UIViewController {
         
         scheduledTrackersInCategory = scheduledHabitTrackersInCategory + scheduledIrregularEventTrackersInCategory
         
-        if let searchText = searchTextField.text, !searchText.isEmpty {
+        if let searchText = searchTextField.text, !searchText.isEmpty, !scheduledTrackersInCategory.isEmpty {
             scheduledTrackersInCategory = scheduledTrackersInCategory.filter { $0.name.lowercased().contains(searchText.lowercased()) }
+            configureFilteredPlaceholder()
         }
         
         return scheduledTrackersInCategory
@@ -358,6 +364,8 @@ extension TrackersViewController: UICollectionViewDataSource {
             if scheduledTrackersInCategory.count > 0 {
                 filteredCategories += [TrackerCategory(title: category.title, trackers: scheduledTrackersInCategory)]
                 removePlaceholder()
+            } else if trackersInTotal > 0 {
+                configureFilteredPlaceholder()
             }
         }
         
