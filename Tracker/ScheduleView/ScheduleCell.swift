@@ -18,15 +18,15 @@ final class ScheduleCell: UITableViewCell {
         
         contentView.backgroundColor = .ypGray30
         
-        addDayLabel()
-        addSwitcher()
+        configureDayLabel()
+        configureSwitcher()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func addDayLabel() {
+    private func configureDayLabel() {
         dayLabel.font = UIFont.systemFont(ofSize: 17)
         dayLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(dayLabel)
@@ -37,7 +37,7 @@ final class ScheduleCell: UITableViewCell {
         ])
     }
     
-    private func addSwitcher() {
+    private func configureSwitcher() {
         switcher.addTarget(self, action: #selector(switcherTapped), for: .valueChanged)
         switcher.isOn = true
         switcher.onTintColor = .ypBlueSwitch

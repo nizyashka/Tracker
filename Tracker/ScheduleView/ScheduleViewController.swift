@@ -26,13 +26,12 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
         
         view.backgroundColor = .white
         
-        addViewTitleLabel()
+        configureViewTitleLabel()
         configureTableView()
-        registerCell()
-        addDoneButton()
+        configureDoneButton()
     }
     
-    private func addViewTitleLabel() {
+    private func configureViewTitleLabel() {
         viewTitleLabel.text = "Расписание"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -48,6 +47,8 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
     private func configureTableView() {
         tableView.dataSource = self
         tableView.delegate = self
+        
+        tableView.register(ScheduleCell.self, forCellReuseIdentifier: "cell")
         
         tableView.tableHeaderView = UIView()
         tableView.allowsSelection = false
@@ -65,11 +66,7 @@ final class ScheduleViewController: UIViewController, ScheduleCellDelegate {
         ])
     }
     
-    private func registerCell() {
-        tableView.register(ScheduleCell.self, forCellReuseIdentifier: "cell")
-    }
-    
-    private func addDoneButton() {
+    private func configureDoneButton() {
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         doneButton.setTitle("Готово", for: .normal)
         doneButton.backgroundColor = .ypBlack
@@ -118,6 +115,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         
         cell.delegate = self
         cell.dayLabel.text = weekdays[indexPath.row]
+        cell.switcher.isOn = pickedWeekdays[indexPath.row] > 0 ? true : false
         
         return cell
     }

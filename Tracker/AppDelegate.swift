@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import AppMetricaCore
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,6 +15,10 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         _ = CoreDataStack.shared
+        
+        if let configuration = AppMetricaConfiguration(apiKey: "0aec3b7f-402f-4fb2-adec-2df5f24d6fe9") {
+            AppMetrica.activate(with: configuration)
+        }
         
         return true
     }

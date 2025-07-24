@@ -6,14 +6,16 @@
 //
 
 import UIKit
+import AppMetricaCore
 
 final class TrackerCell: UICollectionViewCell {
-    let trackerCard = UIButton()
+    let trackerCard = UIView()
     let trackerNameLabel = UILabel()
     let circleView = UIView()
     let trackerEmojiSticker = UILabel()
     let trackerDayCounterLabel = UILabel()
     let trackerCompleteButton = UIButton()
+    let plusImage = UIImage(systemName: "plus")?.withTintColor(.ypBackground)
     
     let dataProvider = DataProvider.shared
     
@@ -102,7 +104,7 @@ final class TrackerCell: UICollectionViewCell {
         trackerCompleteButton.layer.cornerRadius = 17
         trackerCompleteButton.clipsToBounds = true
         trackerCompleteButton.backgroundColor = .ypGreen
-        trackerCompleteButton.tintColor = .white
+        trackerCompleteButton.tintColor = .ypBackground
         trackerCompleteButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(trackerCompleteButton)
         
@@ -116,6 +118,11 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     @objc private func trackerCompleteButtonTapped() {
+        let params : [AnyHashable : Any] = ["event": "click", "screen": "Main", "item": "track"]
+        AppMetrica.reportEvent(name: "track", parameters: params, onFailure: { error in
+            print("REPORT ERROR: %@", error.localizedDescription)
+        })
+        
         guard let currentDate = trackerCellDelegate?.getCurrentDate(),
               let datePickerDate = trackerCellDelegate?.getDatePickerDate(),
               let indexPath,

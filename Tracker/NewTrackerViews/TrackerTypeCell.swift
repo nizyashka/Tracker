@@ -24,11 +24,11 @@ final class TrackerTypeCell: UITableViewCell {
     }
     
     private func setupSubviews() {
-        addTypeLabel()
-        addImageView()
+        configureTypeLabel()
+        configureImageView()
     }
     
-    private func addTypeLabel() {
+    private func configureTypeLabel() {
         typeLabel.font = UIFont.systemFont(ofSize: 17)
         typeLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(typeLabel)
@@ -39,7 +39,7 @@ final class TrackerTypeCell: UITableViewCell {
         ])
     }
     
-    private func addImageView() {
+    private func configureImageView() {
         imageViewArrow.image = UIImage(systemName: "chevron.right")
         imageViewArrow.tintColor = .lightGray
         imageViewArrow.translatesAutoresizingMaskIntoConstraints = false

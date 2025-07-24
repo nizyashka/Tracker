@@ -15,11 +15,14 @@ final class CategoriesViewModel {
         return trackerCategories
     }
     
+    var selectedCategory: String?
+    
     private weak var delegate: CategoriesViewModelDelegate?
     
     private let model = CategoriesModel()
     
     var categoryAdded: (() -> Void)?
+    var tableView: ((UITableView, IndexPath) -> Void)?
     
     init(delegate: CategoriesViewModelDelegate) {
         self.delegate = delegate
@@ -57,5 +60,16 @@ final class CategoriesViewModel {
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func selectCategory(tableView: UITableView) {
+        guard let selectedCategory,
+              let row = trackerCategories?.firstIndex(where: { $0.title == selectedCategory }) else {
+            return
+        }
+        
+        let indexPath = IndexPath(row: row, section: 0)
+        tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+        self.tableView?(tableView, indexPath)
     }
 }

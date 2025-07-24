@@ -19,16 +19,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let firstNavigationController = UINavigationController(rootViewController: TrackersViewController())
-        firstNavigationController.navigationBar.backgroundColor = .white
-        firstNavigationController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "TrackersTabBarImage"), tag: 0)
+        let statisticsViewController = StatisticsViewController()
+        let trackersViewController = TrackersViewController()
+        trackersViewController.statisticsViewControllerDelegate = statisticsViewController
         
-        let secondNavigationController = UINavigationController(rootViewController: StatisticsViewController())
-        secondNavigationController.navigationBar.backgroundColor = .white
-        secondNavigationController.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "StatisticsTabBarImage"), tag: 1)
+        let firstNavigationController = UINavigationController(rootViewController: trackersViewController)
+        firstNavigationController.navigationBar.backgroundColor = .ypBackground
+        firstNavigationController.tabBarItem = UITabBarItem(title: NSLocalizedString("trackers", comment: "Trackers tab bar"), image: UIImage(named: "TrackersTabBarImage"), tag: 0)
+        
+        let secondNavigationController = UINavigationController(rootViewController: statisticsViewController)
+        secondNavigationController.navigationBar.backgroundColor = .ypBackground
+        secondNavigationController.tabBarItem = UITabBarItem(title: NSLocalizedString("statistics", comment: "Statistics tab bar"), image: UIImage(named: "StatisticsTabBarImage"), tag: 1)
         
         let tabBarController = UITabBarController()
-        tabBarController.tabBar.backgroundColor = .white
+        tabBarController.tabBar.backgroundColor = .ypBackground
         tabBarController.viewControllers = [firstNavigationController, secondNavigationController]
         
         window?.rootViewController = tabBarController

@@ -8,11 +8,11 @@
 import UIKit
 
 final class NewCategoryViewController: UIViewController {
-    let viewTitleLabel = UILabel()
+    private let viewTitleLabel = UILabel()
     private let categoryNameTextField = PaddedTextField()
-    let doneButton = UIButton()
+    private let doneButton = UIButton()
     
-    let viewModel: CategoriesViewModel?
+    private let viewModel: CategoriesViewModel?
     
     init(viewModel: CategoriesViewModel) {
         self.viewModel = viewModel
@@ -28,12 +28,12 @@ final class NewCategoryViewController: UIViewController {
         
         view.backgroundColor = .white
         
-        addViewTitleLabel()
-        addCategoryNameTextField()
+        configureViewTitleLabel()
+        configureCategoryNameTextField()
         configureDoneButton()
     }
     
-    private func addViewTitleLabel() {
+    private func configureViewTitleLabel() {
         viewTitleLabel.text = "Новая категория"
         viewTitleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         viewTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +46,7 @@ final class NewCategoryViewController: UIViewController {
         ])
     }
     
-    private func addCategoryNameTextField() {
+    private func configureCategoryNameTextField() {
         categoryNameTextField.delegate = self
         guard let categoryNameTextFieldDelegate = categoryNameTextField.delegate else {
             print("[NewCategoryViewController]: addCategoryNameTextField - No delegate found.")
