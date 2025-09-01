@@ -7,10 +7,13 @@
 
 import UIKit
 
+enum CoreDataError: Error {
+    case saveError
+}
+
 final class CategoriesViewModel {
     var trackerCategories: [TrackerCategory]? {
-        let model = CategoriesModel()
-        let trackerCategories = model.getCategoriesFromCoreData()
+        let trackerCategories = getCategoriesFromCoreData()
         
         return trackerCategories
     }
@@ -19,7 +22,7 @@ final class CategoriesViewModel {
     
     private weak var delegate: CategoriesViewModelDelegate?
     
-    private let model = CategoriesModel()
+    private let dataProvider = DataProvider.shared
     
     var categoryAdded: (() -> Void)?
     var tableView: ((UITableView, IndexPath) -> Void)?
@@ -29,7 +32,7 @@ final class CategoriesViewModel {
     }
     
     func addCategory(categoryName: String) {
-        let result = model.saveNewCategoryToCoreData(categoryName: categoryName)
+        let result = saveNewCategoryToCoreData(categoryName: categoryName)
         
         switch result {
         case .success(_):
@@ -71,5 +74,17 @@ final class CategoriesViewModel {
         let indexPath = IndexPath(row: row, section: 0)
         tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
         self.tableView?(tableView, indexPath)
+    }
+    
+    func getCategoriesFromCoreData() -> [TrackerCategory] {
+        return dataProvider.trackerCategories
+    }
+    
+    func saveNewCategoryToCoreData(categoryName: String) -> Result<String, Error> {
+        guard let category = dataProvider.trackerCategoriesStore.addNewCategory(title: categoryName) else {
+            return .failure(CoreDataError.saveError)
+        }
+        
+        return .success(categoryName)
     }
 }
