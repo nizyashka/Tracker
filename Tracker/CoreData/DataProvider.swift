@@ -1,10 +1,3 @@
-//
-//  DataProvider.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 25.06.2025.
-//
-
 import CoreData
 
 protocol DataProviderDelegate: AnyObject {
@@ -157,14 +150,6 @@ final class DataProvider: NSObject {
                 }
             }
         }
-        
-//        На потом
-//        func getTrackerByID(id: UUID) -> TrackersCoreData? {
-//            fetchedResultsController.fetchedObjects?
-//                .compactMap { $0.trackers as? Set<TrackersCoreData> }
-//                .flatMap { $0 }
-//                .first { $0.id == id }
-//        }
         
         return nil
     }

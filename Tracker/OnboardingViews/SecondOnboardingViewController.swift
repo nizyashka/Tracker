@@ -1,10 +1,3 @@
-//
-//  SecondOnboardingViewController.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 04.07.2025.
-//
-
 import UIKit
 
 final class SecondOnboardingViewController: FirstOnboardingViewController {

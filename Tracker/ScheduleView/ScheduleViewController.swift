@@ -1,10 +1,3 @@
-//
-//  ScheduleViewController.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 09.06.2025.
-//
-
 import UIKit
 
 protocol ScheduleCellDelegate: AnyObject {

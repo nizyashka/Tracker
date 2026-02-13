@@ -1,10 +1,3 @@
-//
-//  ScheduleValueTransformer.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 19.06.2025.
-//
-
 import UIKit
 
 @objc

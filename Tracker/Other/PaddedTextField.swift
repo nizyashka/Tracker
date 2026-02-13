@@ -1,10 +1,3 @@
-//
-//  PaddedTextField.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 06.06.2025.
-//
-
 import UIKit
 
 final class PaddedTextField: UITextField {

@@ -1,11 +1,3 @@
-/* 
-  Localizable.strings
-  Tracker
-
-  Created by Алексей Непряхин on 21.07.2025.
-  
-*/
-
 "trackers" = "Trackers";
 "filters" = "Filters";
 "statistics" = "Statistics";

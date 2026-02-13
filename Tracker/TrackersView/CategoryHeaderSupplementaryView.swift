@@ -1,10 +1,3 @@
-//
-//  SupplementaryView.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 02.06.2025.
-//
-
 import UIKit
 
 class CategoryHeaderSupplementaryView: UICollectionReusableView {

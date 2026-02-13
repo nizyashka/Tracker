@@ -1,10 +1,3 @@
-//
-//  EmojiCell.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 16.06.2025.
-//
-
 import UIKit
 
 final class EmojiCell: UICollectionViewCell {

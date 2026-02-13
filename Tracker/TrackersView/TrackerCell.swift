@@ -1,10 +1,3 @@
-//
-//  TrackerCell.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 01.06.2025.
-//
-
 import UIKit
 import AppMetricaCore
 

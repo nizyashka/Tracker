@@ -1,10 +1,3 @@
-//
-//  TrackerEditViewController.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 14.07.2025.
-//
-
 import UIKit
 
 protocol TrackerEditViewControllerDelegate: AnyObject {

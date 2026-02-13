@@ -1,10 +1,3 @@
-//
-//  NewHabitViewController.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 06.06.2025.
-//
-
 import UIKit
 
 protocol ScheduleViewControllerDelegate: AnyObject {
@@ -41,8 +34,6 @@ class NewTrackerViewController: UIViewController {
                         "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
    
     let colorNames: [String] = ["YP_Red (Color palette)", "YP_Orange (Color palette)", "YP_Blue (Color palette)", "YP_Purple (Color palette)", "YP_Green (Color palette)", "YP_Pink (Color palette)", "YP_PaleBiege (Color palette)", "YP_Cyan (Color palette)", "YP_SaladGreen (Color palette)", "YP_DarkBlue (Color palette)", "YP_DarkOrange (Color palette)", "YP_SoftPink (Color palette)", "YP_Biege (Color palette)", "YP_PaleBlue (Color palette)", "YP_DarkPurple (Color palette)", "YP_DeepPurple (Color palette)", "YP_PalePurple (Color palette)", "YP_BrightGreen (Color palette)"]
-    
-    //    private let colors: [UIColor] = [.ypRedColorPalette, .ypOrangeColorPalette, .ypBlueColorPalette, .ypPurpleColorPalette, .ypGreenColorPalette, .ypPinkColorPalette, .ypPaleBiegeColorPalette, .ypCyanColorPalette, .ypSaladGreenColorPalette, .ypDarkBlueColorPalette, .ypDarkOrangeColorPalette, .ypSoftPinkColorPalette, .ypBiegeColorPalette, .ypPaleBlueColorPalette, .ypDarkPurpleColorPalette, .ypDeepPurpleColorPalette, .ypPalePurpleColorPalette, .ypBrightGreenColorPalette]
     
     weak var newTrackerViewControllerDelegate: NewTrackerViewControllerDelegate?
     

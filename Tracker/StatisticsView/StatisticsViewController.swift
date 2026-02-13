@@ -1,10 +1,3 @@
-//
-//  StatisticsViewController.swift
-//  Tracker
-//
-//  Created by Алексей Непряхин on 26.05.2025.
-//
-
 import UIKit
 
 protocol StatisticsViewControllerDelegate: AnyObject {
